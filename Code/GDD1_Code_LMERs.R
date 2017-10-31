@@ -1,42 +1,12 @@
-
----
-title: "Social and configural effects on the cognitive dynamics of perspective-taking"
-author: "Alexia Galati and Rick Dale"
-date: "10/31/17"
-output:
-  html_document: default
-  html_notebook: default
----
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-
-rm(list=ls())
-
 library(pander)
 library(lme4)
 
-source('xflip.R') # this also contains some functions we'll need (print_stats)
+setwd("~/Documents/[github repositories]/social-configural-dynamics/Code")
+source('xflip.R') # this also contains some functions we'll need! (print_stats)
 
-```
-
-## Preliminaries for Exp 1A
-
-Here we are loading in prior data analyzed using the scripts "GDD1_batchTrajectoryAnalysis.R". 
-These include data from both the "error" (control) trials and the "ambiguous" (critical) trials of the experiment. 
-
-We trim the data by removing trials that took more than 6000 ms from the initiation of the trial to selection of an initial folder or over 1000 pixels of total distance. These values reflect long tails of the distribution, well over 3 SD of their respective distributions. We chose to omit these trials because these radical divergences from their general distribution may reflect moments when the participant is not fully engaged in the task or understanding the trial. 
-
-We then plot a histogram for the proportion of egocentric responses across participants.
-
-Finally, we classify participants as egocentric, other-centric, and mixed responders based on their proportion of egocentric responses on ambiguous/critical trials. For classification, we computed the proportions of egocentric and other-centric responses of each listener on critical trials, and following Duran, Dale, and Kreuz (2011), if the proportion scores exceeded .70 for one of the two perspective categories, the listener was classified as member of that category; otherwise they were classified as a mixed responder.
-
-In Exp 1A (GDD1A), the configural cue (i.e., the orientation of the folders appearing on the tabletop) is always aligned with the perspective of the participant/listener (ego-aligned configural cue).
-
-
-```{r}
-
+######################
+#### FOR Exp 1A #####
+######################
 load('GDD1A_churnedRawTrajectoryData.Rd')
 
 ### Data cleaning and trimming ###
@@ -76,17 +46,9 @@ resAllError1A$perspectivePreference[resAllError1A$fl %in% otherSubjects]='other'
 resAll1A$Exp = "1A" #Experiment 1A: folder orientation is constant = always aligned with ego
 resAllError1A$Exp = "1A" #Experiment 1A: folder orientation is constant = always aligned with ego
 
-```
-
-## Preliminaries for Exp 1B
-
-We repeat the same process for Exp 1B.
-
-In Exp 1B (GDD1B), the configural cue (i.e., the orientation of the folders appearing on the tabletop) is always aligned with the perspective of the task partner/speaker (other-aligned configural cue).
-
-The two experiments are otherwise identical.
-
-```{r}
+######################
+#### FOR Exp 1B #####
+######################
 
 # Same procedure for Exp 1B 
 load('GDD1B_churnedRawTrajectoryData.Rd') 
@@ -129,24 +91,23 @@ resAllError1B$perspectivePreference[resAllError1B$fl %in% otherSubjects]='other'
 resAll1B$Exp = "1B" #Experiment 1B: folder orientation varies = always aligned with other 
 resAllError1B$Exp = "1B" #Experiment 1B: folder orientation varies = always aligned with other 
 
-```
-
-## Preliminaries for both experiments 
-
-We combine the dataframes for the two experiments and recode some of the variables.
-
-Specifically, we create an "axis" variable, for which we combine "left-right" instructions to refer to the "lateral" axis, and "front-back" instructions to refer to the "sagittal" axis. This decision is motivated in more detail in the manuscript.
-
-We create a new variable for offset, for which we assign "90"" degree offset to speaker positions 90 and 270, as we don't expect a difference between the two. For ambiguous trials this contrasts with the "180" offset; for control trials, with "0" offset.
-
-```{r}
+########################
+#### COMBINE DATA #####
+########################
 
 # Combine the two dataframes for ambiguous/critical trials
 resAll = rbind(resAll1A, resAll1B)
-
+head(resAll)
+tail(resAll)
 
 # Combine the two dataframes for control trials
 resAllError = rbind(resAllError1A, resAllError1B)
+head(resAllError)
+tail(resAllError)
+
+####################################
+### SOME RECODING OF PREDICTORS ###
+####################################
 
 # Let's create axis variable to compress front-back and left-right instuctions into a sagittal and lateral axis
 resAll$axis = 'sagittal'
@@ -167,13 +128,9 @@ resAllError$axis[resAllError$instruction %in% c('righ','left')]='lateral'
 resAllError$offset = '0'
 resAllError$offset[resAllError$ppos %in% c('init_90','init_270')]='90'
 
-```
-
-## Descriptives
-
-Let's get some descriptives for ambiguous and control trials 
-
-```{r}
+###############################################
+### SOME DESCRIPTIVES for AMBIGUOUS trials ###
+###############################################
 
 pander(aggregate(egoChoice~Exp+offset+axis,data=resAll,FUN=mean))
 pander(aggregate(RTDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
@@ -181,20 +138,21 @@ pander(aggregate(totalDistanceDV~perspectivePreference+Exp+offset+axis,data=resA
 pander(aggregate(xFlipDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
 
 
+############################################
+### SOME DESCRIPTIVES for CONTROL trials ###
+############################################
+
 #focusing on just Exp and perspective preference
-pander(aggregate(err~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
+pander(aggregate(err~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this seems to be due to front-back trials, see below)
 pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
 pander(aggregate(totalDistanceDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
 pander(aggregate(xFlipDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
 
-```
 
-## Exploratory plotting of DVs across trials to explore stabilization
+######################################################
+#### PLOTTING DVs across TRIALs in EXP 2A and 2B ####
+######################################################
 
-We are interested in how egocentric perspective selection might differ over time in the two experiments. 
-Here, we plot the proportion of egocentric choices on ambigous trials over time (i.e. across trial order).
-
-```{r}
 
 ### Perspective choice by trial, in the two Exps ###
 
@@ -209,22 +167,21 @@ plot(perspectiveByTrial1A, main="Egocentric choice selection across trials in Ex
 
 plot(perspectiveByTrial1B, main="Egocentric choice selection across trials in Exp 1B",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0, .90))
+#abline(lm(perspectiveByTrial2B), col="black") # regression line (y~x) 
 
 plot(perspectiveByTrial1A_Othercentric, # main="Egocentric choice selection of Other-centric responders across trials in Exp 1A",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0,.90))
 
+
 plot(perspectiveByTrial1B_Othercentric, #main="Egocentric choice selection of Other-centric responders across trials in Exp 1B",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0, .90))
 
-```
 
-## Experiment comparisons
+###############################
+### Experiment COMPARISONS ####
+###############################
 
-Before getting to the LMERs, let's compare the distribution of other, ego, mixed responders across experiments.
-
-```{r}
-
-# Let's compare the distribution of other, ego, mixed responders in GDD1B vs. GDD1A
+# Before getting to the LMERs, let's compare the distribution of other, ego, mixed responders in GDD1B vs. GDD1A
 preferenceCounts <- matrix(c(59, 18, 18, 43, 33, 17), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1B", "GDD1A")
@@ -234,13 +191,12 @@ chisq.test(preferenceCounts)
 
 
 # Let's also do a comparison between the distributions when the classification in ego, other, mixed
-# based on lateral instructions only (left-right only)
+# based on lateral instructions only (left, right only)
 # This is because mixed responders (based on the previous classification, on all instruction types),
-# made high errors on control front-back trials (esp in Exp 1B)
-# possibly due to using a different mapping to interpret front-back.
+# made high errors on control front-back trials (esp in Exp 2B)
+# (possibly due to using a different mapping to interpret front-back).
 # This may suggest that their responses on ambiguous trials may have not been "mixed" or random
 # but may have simply reflected this different mapping on front-back trials.
-# We make this point in the paper.
 
 preferenceCounts <- matrix(c(61, 25, 9, 29, 42, 22), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
@@ -249,25 +205,19 @@ preferenceCounts <- as.table(preferenceCounts)
 summary(preferenceCounts)
 chisq.test(preferenceCounts)
 
-# Let's compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 
-# In DDK1 there were 43 other, 31 ego, and 8 mixed. 
+#compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 
+#in DDK1 there were 43 other, 31 ego, and 8 mixed. 
 preferenceCounts <- matrix(c(43, 33, 17, 43, 31, 8), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1A", "DDKstudy1")
 preferenceCounts <- as.table(preferenceCounts)
 summary(preferenceCounts)
 chisq.test(preferenceCounts) 
-#The two distributions don't differ significantly. Good news for replication.
+#The two distributions don't differ significantly. This is good news for replication!
 
-```
-
-## Linear mixed effects models for ambiguous (critical) trials
-
-We created separate linear mixed effects models for each of the dependent variables (proprotion of egocentric choices, RT, total Distance, x-flips) on ambiguous/critical trials, combining the data from Experiment 1a and 1b. 
-
-We start with some pre-processing of the variables, setting the reference categories where relevant, and inspecting the data structure.
-
-```{r}
+####################################################
+#### LMER MODELS FOR AMBIGUOUS/CRITICAL TRIALS ####
+###################################################
 
 resAll = as.data.frame(as.matrix(resAll))
 #Defining as factors in order to set reference categories next
@@ -293,13 +243,10 @@ resAll$xFlipDV = as.integer(as.matrix(resAll$xFlipDV))
 #Center time/trial
 resAll$centered_trial =scale(resAll$trial)
 
-```
+############################
+#### Ego Choice Models ####
+###########################
 
-## Egocentric Choice models (Ambiguous/Critical trials)
-
-For the model with perspective choice as dependent variable (egoChoice), the fixed factors included the orientation of the folders (Exp), the speaker’s position (offset: 180° vs. 90°; within-subjects), instruction's axis (axis: on a sagittal axis: front-back vs. a lateral axis: left-right; within-subjects), and their interactions. Given that the perspective choice as a dependent variable is a binary variable, we used a logistic regression model (Jaeger, 2008).   
-
-```{r}
 ChoiceModel1 = glmer(egoChoice ~ Exp*offset*axis 
                     + (1 | fl),
                     #+ (0 + offset | fl),
@@ -324,13 +271,10 @@ ChoiceModel_time = glmer(egoChoice ~ Exp*offset*axis+ Exp*centered_trial
                      REML = FALSE)
 summary(ChoiceModel_time)
 
-```
+##############################
+#### Response Time Models ####
+##############################
 
-## Response Time models (Ambiguous/Critical trials)
-
-For the models for response time (RTDV) and the other dependent measures (totalDistanceDV, xFlipDV), in addition to the fixed effects used in the egocentric choice model, we include perspective preference as a fixed effect (perspectivePreference: egocentric, other-centric, vs. mixed responder types; between-subjects), along with its interaction with the other factors.
-
-```{r}
 RTModel = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis 
                 + (1 | fl)
                 + (0 + offset | fl)
@@ -341,13 +285,16 @@ RTModel = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis
                 REML=FALSE)
 print('RT:'); pander(print_stats(RTModel))
 
+#summary(RTModel1)
+#coef(RTModel1)
+
 # Check residuals (before and after log transform)
 # There is deviation from normality and homoscedasticity, so use log(RT)
 #plot(density(resid(RTModel))) #does this look approximately normal?
 #qqnorm(resid(RTModel)) #check if they fall on a straight line
 #qqline(resid(RTModel)) #check departure from line
 
-#### Investigation of stabilization across trials ####
+#### Investigation of stabilization over trials ####
 
 RTModel1_time = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis+Exp*centered_trial
                     + (1 | fl)
@@ -360,11 +307,10 @@ RTModel1_time = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis+Exp*cente
 print('RT:'); pander(print_stats(RTModel1_time))
 
 
-```
+###############################
+#### Total Distance Models ####
+###############################
 
-## Total Distance models (Ambiguous/Critical trials)
-
-```{r}
 DistanceModel = lmer(log(totalDistanceDV) ~ Exp*perspectivePreference*offset*axis 
                       + (1 | fl) 
                       + (0 + offset | fl)
@@ -381,8 +327,6 @@ print('Total Distance:'); pander(print_stats(DistanceModel))
 #qqnorm(resid(DistanceModel)) #check if they fall on a straight line
 #qqline(resid(DistanceModel)) #check departure from line
 
-#### Investigation of stabilization across trials ####
-
 DistanceModel_time = lmer(log(totalDistanceDV) ~ Exp*perspectivePreference*offset*axis+Exp*centered_trial
                     + (1 | fl)
                     + (0 + offset | fl)
@@ -393,11 +337,11 @@ DistanceModel_time = lmer(log(totalDistanceDV) ~ Exp*perspectivePreference*offse
                     REML=FALSE)
 print('Total Distance:'); pander(print_stats(DistanceModel_time))
 
-```
 
-## Directional Shifts models (Ambiguous/Critical trials)
+####################################
+#### Directional Shifts Models ####
+###################################
 
-```{r}
 xFlipsModel = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis 
                     + (1 | fl)
                     + (0 + offset | fl)
@@ -407,7 +351,6 @@ xFlipsModel = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis
                     REML=FALSE)
 print('Directional Shifts:'); pander(print_stats(xFlipsModel))
 
-#### Investigation of stabilization across trials ####
 
 xFlipsModel_time = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis+Exp*centered_trial
                           + (1 | fl)
@@ -419,15 +362,9 @@ xFlipsModel_time = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis+Exp*cent
                           REML=FALSE)
 print('Directional Shifts:'); pander(print_stats(xFlipsModel_time))
 
-```
-
-## Linear mixed effects models for control trials
-
-We created separate linear mixed effects models for each of the dependent variables (proportion of errors, response time, total Distance, x-flips) on controls trials, combining the data from Experiment 1a and 1b. These models are reported in Appendix A in the manuscript.
-
-We start with some pre-processing of the variables, setting the reference categories where relevant, and inspecting the data structure.
-
-```{r}
+##################################
+#### LMERS FOR CONTROL TRIALS ####
+##################################
 
 resAllError = as.data.frame(as.matrix(resAllError))
 #Defining as factors in order to set reference categories next
@@ -449,11 +386,6 @@ resAllError$RTDV = as.numeric(as.matrix(resAllError$RTDV))
 resAllError$totalDistanceDV = as.numeric(as.matrix(resAllError$totalDistanceDV))
 resAllError$xFlipDV = as.integer(as.matrix(resAllError$xFlipDV))
 
-```
-
-## Proportion of errors model (Control trials)
-
-```{r}
 
 ErrorModel = glmer(err ~ Exp*perspectivePreference*offset*axis 
                     + (1 | fl),
@@ -465,11 +397,6 @@ ErrorModel = glmer(err ~ Exp*perspectivePreference*offset*axis
                     REML=FALSE)
 summary(ErrorModel)
 
-```
-
-## Response Time model (Control trials)
-
-```{r}
 
 RTControl = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis 
                   + (1 | fl) 
@@ -479,16 +406,11 @@ RTControl = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis
                   data=resAllError,  
                   REML=FALSE)
 print('RT:'); pander(print_stats(RTControl))
+summary(RTControl)
 
-#plot(density(resid(RTControl)))
-#qqnorm(resid(RTControl))
-#qqline(resid(RTControl))
-
-```
-
-## Total Distance models (Control trials)
-
-```{r}
+#plot(density(resid(RTControl1)))
+#qqnorm(resid(RTControl1))
+#qqline(resid(RTControl1))
 
 DistanceControl1 = lmer(log(totalDistanceDV) ~  Exp*perspectivePreference*offset*axis 
                         + (1 | fl) 
@@ -504,12 +426,6 @@ summary(DistanceControl1)
 #qqnorm(resid(DistanceControl1))
 #qqline(resid(DistanceControl1))
 
-```
-
-## Directional Shifts model (Control trials)
-
-```{r}
-
 xFlipsControl1 = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis 
                       + (1 | fl)
                       + (0 + offset | fl)
@@ -521,5 +437,8 @@ xFlipsControl1 = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis
 print('Directional Shifts:'); pander(print_stats(xFlipsControl1))
 summary(xFlipsControl1)
 
-```
+###Some plotting####
+boxplot(RTDV ~ err, col=c("white"), resAllError)
+boxplot(xFlipDV ~ err, col=c("white"), resAllError)
+boxplot(totalDistanceDV ~ err, col=c("white"), resAllError)
 
