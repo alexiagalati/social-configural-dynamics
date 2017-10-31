@@ -2,9 +2,11 @@
 ---
 title: "Social and configural effects on the cognitive dynamics of perspective-taking"
 author: "Alexia Galati and Rick Dale"
-date: "10/31/17"
+date: "`r format(Sys.Date())`"
 output:
-  html_document: default
+  html_document: 
+    keep_md: true  
+
   html_notebook: default
 ---
 
@@ -175,13 +177,13 @@ Let's get some descriptives for ambiguous and control trials
 
 ```{r}
 
+# Ambiguous/critical trials 
 pander(aggregate(egoChoice~Exp+offset+axis,data=resAll,FUN=mean))
 pander(aggregate(RTDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
 pander(aggregate(totalDistanceDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
 pander(aggregate(xFlipDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
 
-
-#focusing on just Exp and perspective preference
+# Control trials
 pander(aggregate(err~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
 pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
 pander(aggregate(totalDistanceDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
@@ -358,7 +360,6 @@ RTModel1_time = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis+Exp*cente
                     data=resAll, 
                     REML=FALSE)
 print('RT:'); pander(print_stats(RTModel1_time))
-
 
 ```
 
