@@ -2,7 +2,7 @@
 ---
 title: "Social and configural effects on the cognitive dynamics of perspective-taking"
 author: "Alexia Galati and Rick Dale"
-date: "`r format(Sys.Date())`"
+date: "10/31/2017"
 output:
   html_document: 
     keep_md: true  
@@ -177,17 +177,17 @@ Let's get some descriptives for ambiguous and control trials
 
 ```{r}
 
-# Ambiguous/critical trials 
-pander(aggregate(egoChoice~Exp+offset+axis,data=resAll,FUN=mean))
-pander(aggregate(RTDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
-pander(aggregate(totalDistanceDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
-pander(aggregate(xFlipDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
+# Ambiguous/critical trials (excluding offset, for simplicity)
+pander(aggregate(egoChoice~Exp,data=resAll,FUN=mean))
+pander(aggregate(RTDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
+pander(aggregate(totalDistanceDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
+pander(aggregate(xFlipDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 
-# Control trials
-pander(aggregate(err~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
+# Control trials (excluding offset, for simplicity)
+pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
 pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
-pander(aggregate(totalDistanceDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
-pander(aggregate(xFlipDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
+pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
+pander(aggregate(xFlipDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
 
 ```
 
@@ -203,14 +203,19 @@ Here, we plot the proportion of egocentric choices on ambigous trials over time 
 perspectiveByTrial1A = aggregate((1*(resAll1A$chosen!=resAll1A$other))~resAll1A$trial,FUN=mean)
 perspectiveByTrial1B = aggregate(( 1*(resAll1B$chosen!=resAll1B$other))~resAll1B$trial,FUN=mean)
 
-perspectiveByTrial1A_Othercentric = aggregate((1*(resAll1A$chosen[resAll1A$perspectivePreference %in% c('other')]!=resAll1A$other[resAll1A$perspectivePreference %in% c('other')]))~resAll1A$trial[resAll1A$perspectivePreference %in% c('other')],FUN=mean)
-perspectiveByTrial1B_Othercentric = aggregate((1*(resAll1B$chosen[resAll1B$perspectivePreference %in% c('other')]!=resAll1B$other[resAll1B$perspectivePreference %in% c('other')]))~resAll1B$trial[resAll1B$perspectivePreference %in% c('other')],FUN=mean)
-
 plot(perspectiveByTrial1A, main="Egocentric choice selection across trials in Exp 1A",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0, .90))
 
 plot(perspectiveByTrial1B, main="Egocentric choice selection across trials in Exp 1B",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0, .90))
+```
+
+Let's look at other-centric responders only, in the two experiments. 
+
+```{r}
+
+perspectiveByTrial1A_Othercentric = aggregate((1*(resAll1A$chosen[resAll1A$perspectivePreference %in% c('other')]!=resAll1A$other[resAll1A$perspectivePreference %in% c('other')]))~resAll1A$trial[resAll1A$perspectivePreference %in% c('other')],FUN=mean)
+perspectiveByTrial1B_Othercentric = aggregate((1*(resAll1B$chosen[resAll1B$perspectivePreference %in% c('other')]!=resAll1B$other[resAll1B$perspectivePreference %in% c('other')]))~resAll1B$trial[resAll1B$perspectivePreference %in% c('other')],FUN=mean)
 
 plot(perspectiveByTrial1A_Othercentric, # main="Egocentric choice selection of Other-centric responders across trials in Exp 1A",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0,.90))
@@ -224,9 +229,10 @@ plot(perspectiveByTrial1B_Othercentric, #main="Egocentric choice selection of Ot
 
 Before getting to the LMERs, let's compare the distribution of other, ego, mixed responders across experiments.
 
+Let's first compare the distribution of other, ego, mixed responders in Exp 1A vs. Exp 1B.
+
 ```{r}
 
-# Let's compare the distribution of other, ego, mixed responders in GDD1B vs. GDD1A
 preferenceCounts <- matrix(c(59, 18, 18, 43, 33, 17), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1B", "GDD1A")
@@ -234,15 +240,14 @@ preferenceCounts <- as.table(preferenceCounts)
 summary(preferenceCounts)
 chisq.test(preferenceCounts)
 
+```
 
-# Let's also do a comparison between the distributions when the classification in ego, other, mixed
-# based on lateral instructions only (left-right only)
-# This is because mixed responders (based on the previous classification, on all instruction types),
-# made high errors on control front-back trials (esp in Exp 1B)
-# possibly due to using a different mapping to interpret front-back.
-# This may suggest that their responses on ambiguous trials may have not been "mixed" or random
-# but may have simply reflected this different mapping on front-back trials.
-# We make this point in the paper.
+Let's also compare the distributions when the classification in ego, other, mixed is based on lateral instructions only (left-right only).
+
+This is because mixed responders (based on the previous classification, on all instruction types), made high errors on control front-back trials (esp in Exp 1B), possibly due to using a different mapping to interpret front-back. This may suggest that their responses on ambiguous trials may have not been "mixed" or random but may have simply reflected this different mapping on front-back trials. We make this point in the paper.
+
+
+```{r}
 
 preferenceCounts <- matrix(c(61, 25, 9, 29, 42, 22), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
@@ -251,14 +256,20 @@ preferenceCounts <- as.table(preferenceCounts)
 summary(preferenceCounts)
 chisq.test(preferenceCounts)
 
-# Let's compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 
-# In DDK1 there were 43 other, 31 ego, and 8 mixed. 
+```
+
+Let's finally compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 
+In DDK1 there were 43 other, 31 ego, and 8 mixed. 
+
+```{r}
+
 preferenceCounts <- matrix(c(43, 33, 17, 43, 31, 8), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1A", "DDKstudy1")
 preferenceCounts <- as.table(preferenceCounts)
 summary(preferenceCounts)
 chisq.test(preferenceCounts) 
+
 #The two distributions don't differ significantly. Good news for replication.
 
 ```
@@ -366,6 +377,7 @@ print('RT:'); pander(print_stats(RTModel1_time))
 ## Total Distance models (Ambiguous/Critical trials)
 
 ```{r}
+
 DistanceModel = lmer(log(totalDistanceDV) ~ Exp*perspectivePreference*offset*axis 
                       + (1 | fl) 
                       + (0 + offset | fl)
