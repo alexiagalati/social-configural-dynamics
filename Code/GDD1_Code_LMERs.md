@@ -331,148 +331,11 @@ pander(aggregate(xFlipDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 
 ```r
 # Control trials (excluding offset, for simplicity)
-pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
+#pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
+#pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
+#pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
+#pander(aggregate(xFlipDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
 ```
-
-
--------------------------------------
- perspectivePreference   Exp    err  
------------------------ ----- -------
-          ego            1A   0.03633
-
-         mixed           1A   0.1306 
-
-         other           1A   0.01991
-
-          ego            1B   0.01695
-
-         mixed           1B   0.2507 
-
-         other           1B   0.02312
--------------------------------------
-
-```r
-pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
-```
-
-
-------------------------------------------------------
- perspectivePreference   offset    axis    Exp   RTDV 
------------------------ -------- -------- ----- ------
-          ego              0     lateral   1A    1235 
-
-         mixed             0     lateral   1A    1113 
-
-         other             0     lateral   1A    1428 
-
-          ego              90    lateral   1A    1312 
-
-         mixed             90    lateral   1A    1577 
-
-         other             90    lateral   1A    1671 
-
-          ego              0     sagittal  1A    1174 
-
-         mixed             0     sagittal  1A    1202 
-
-         other             0     sagittal  1A    1340 
-
-          ego              90    sagittal  1A    1292 
-
-         mixed             90    sagittal  1A    1318 
-
-         other             90    sagittal  1A    1456 
-
-          ego              0     lateral   1B    1019 
-
-         mixed             0     lateral   1B    1314 
-
-         other             0     lateral   1B    1376 
-
-          ego              90    lateral   1B    1060 
-
-         mixed             90    lateral   1B    1477 
-
-         other             90    lateral   1B    1678 
-
-          ego              0     sagittal  1B    1070 
-
-         mixed             0     sagittal  1B    1419 
-
-         other             0     sagittal  1B    1276 
-
-          ego              90    sagittal  1B    1294 
-
-         mixed             90    sagittal  1B    1763 
-
-         other             90    sagittal  1B    1357 
-------------------------------------------------------
-
-```r
-pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
-```
-
-
---------------------------------------------------------
- perspectivePreference    axis    Exp   totalDistanceDV 
------------------------ -------- ----- -----------------
-          ego           lateral   1A         278.5      
-
-         mixed          lateral   1A         285.4      
-
-         other          lateral   1A         294.6      
-
-          ego           sagittal  1A         275.9      
-
-         mixed          sagittal  1A          282       
-
-         other          sagittal  1A          293       
-
-          ego           lateral   1B         261.1      
-
-         mixed          lateral   1B         296.7      
-
-         other          lateral   1B         287.4      
-
-          ego           sagittal  1B         269.2      
-
-         mixed          sagittal  1B          294       
-
-         other          sagittal  1B         284.2      
---------------------------------------------------------
-
-```r
-pander(aggregate(xFlipDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
-```
-
-
-------------------------------------------------
- perspectivePreference    axis    Exp   xFlipDV 
------------------------ -------- ----- ---------
-          ego           lateral   1A     1.498  
-
-         mixed          lateral   1A     1.696  
-
-         other          lateral   1A     1.714  
-
-          ego           sagittal  1A     1.585  
-
-         mixed          sagittal  1A     1.639  
-
-         other          sagittal  1A     1.707  
-
-          ego           lateral   1B     1.469  
-
-         mixed          lateral   1B     1.816  
-
-         other          lateral   1B     1.759  
-
-          ego           sagittal  1B     1.697  
-
-         mixed          sagittal  1B     2.32   
-
-         other          sagittal  1B     1.732  
-------------------------------------------------
 
 ## Exploratory plotting of DVs across trials to explore stabilization
 
@@ -542,15 +405,7 @@ summary(preferenceCounts)
 ```
 
 ```r
-chisq.test(preferenceCounts)
-```
-
-```
-## 
-## 	Pearson's Chi-squared test
-## 
-## data:  preferenceCounts
-## X-squared = 6.9296, df = 2, p-value = 0.03128
+#chisq.test(preferenceCounts)
 ```
 
 Let's also compare the distributions when the classification in ego, other, mixed is based on lateral instructions only (left-right only).
@@ -575,15 +430,7 @@ summary(preferenceCounts)
 ```
 
 ```r
-chisq.test(preferenceCounts)
-```
-
-```
-## 
-## 	Pearson's Chi-squared test
-## 
-## data:  preferenceCounts
-## X-squared = 21.124, df = 2, p-value = 2.588e-05
+#chisq.test(preferenceCounts)
 ```
 
 Let's finally compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 
@@ -606,18 +453,8 @@ summary(preferenceCounts)
 ```
 
 ```r
-chisq.test(preferenceCounts) 
-```
+#chisq.test(preferenceCounts) 
 
-```
-## 
-## 	Pearson's Chi-squared test
-## 
-## data:  preferenceCounts
-## X-squared = 2.6214, df = 2, p-value = 0.2696
-```
-
-```r
 #The two distributions don't differ significantly. Good news for replication.
 ```
 
@@ -641,89 +478,9 @@ resAll$trial = as.integer(as.matrix(resAll$trial))
 resAll$perspectivePreference= relevel(resAll$perspectivePreference, ref = "ego")
 
 ##Check for any "holes" in the design
-with(resAll, table(Exp, offset, axis, perspectivePreference))
-```
+#with(resAll, table(Exp, offset, axis, perspectivePreference))
+#str(resAll)
 
-```
-## , , axis = lateral, perspectivePreference = ego
-## 
-##     offset
-## Exp  180  90
-##   1A 189 124
-##   1B 107  73
-## 
-## , , axis = sagittal, perspectivePreference = ego
-## 
-##     offset
-## Exp  180  90
-##   1A 188 128
-##   1B 107  72
-## 
-## , , axis = lateral, perspectivePreference = mixed
-## 
-##     offset
-## Exp  180  90
-##   1A  98  64
-##   1B 105  70
-## 
-## , , axis = sagittal, perspectivePreference = mixed
-## 
-##     offset
-## Exp  180  90
-##   1A  98  67
-##   1B 102  67
-## 
-## , , axis = lateral, perspectivePreference = other
-## 
-##     offset
-## Exp  180  90
-##   1A 246 165
-##   1B 334 230
-## 
-## , , axis = sagittal, perspectivePreference = other
-## 
-##     offset
-## Exp  180  90
-##   1A 256 172
-##   1B 347 235
-```
-
-```r
-str(resAll)
-```
-
-```
-## 'data.frame':	3644 obs. of  16 variables:
-##  $ fl                   : Factor w/ 188 levels "100.txt","102.txt",..: 1 1 1 1 1 1 1 1 1 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ trial                : int  2 4 7 8 12 13 16 17 18 21 ...
-##  $ instruction          : Factor w/ 4 levels "back","fron",..: 3 1 3 4 1 3 2 2 3 4 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ folder_config        : Factor w/ 4 levels "D1","D2","H",..: 2 1 1 1 2 2 1 4 3 2 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ ppos                 : Factor w/ 3 levels "init_180","init_270",..: 3 3 2 1 2 1 1 1 1 3 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ RTDV                 : Factor w/ 1459 levels " 397"," 414",..: 154 493 1234 1411 914 1437 954 626 1106 493 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ totalDistanceDV      : Factor w/ 3644 levels " 26.60409"," 38.59668",..: 2 1653 3634 3622 3582 3584 3492 2292 3631 3447 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ xFlipDV              : Factor w/ 14 levels " 0"," 1"," 2",..: 1 2 2 7 4 5 5 5 5 5 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ AC                   : Factor w/ 1 level "0": 1 1 1 1 1 1 1 1 1 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ chosen               : Factor w/ 2 levels "F1","F2": 1 1 2 1 1 1 1 1 2 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ other                : Factor w/ 2 levels "F1","F2": 2 2 2 1 1 2 1 1 2 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ perspectivePreference: Factor w/ 3 levels "ego","mixed",..: 3 3 3 3 3 3 3 3 3 3 ...
-##  $ Exp                  : Factor w/ 2 levels "1A","1B": 1 1 1 1 1 1 1 1 1 1 ...
-##  $ axis                 : Factor w/ 2 levels "lateral","sagittal": 1 2 1 1 2 1 2 2 1 1 ...
-##  $ offset               : Factor w/ 2 levels "180","90": 2 2 2 1 2 1 1 1 1 2 ...
-##  $ egoChoice            : Factor w/ 2 levels "0","1": 2 2 1 1 1 2 1 1 1 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-```
-
-```r
 #make sure DVs are of the right type
 resAll$egoChoice = as.factor(as.matrix(resAll$egoChoice))
 resAll$RTDV = as.numeric(as.matrix(resAll$RTDV))
@@ -812,87 +569,17 @@ summary(ChoiceModel1)
 
 ```r
 #This model does not converge and is not reported in the manuscript
-ChoiceModel_time = glmer(egoChoice ~ Exp*offset*axis+ Exp*centered_trial 
-                     + (1 | fl),
+#ChoiceModel_time = glmer(egoChoice ~ Exp*offset*axis+ Exp*centered_trial 
+                     #+ (1 | fl),
                      #+ (0 + offset | fl),
                      #+ (0 + axis | fl),
                      #+ (0 + offset:axis | fl), #did not converge
-                     data=resAll,
-                     family = "binomial",
+                     #data=resAll,
+                     #family = "binomial",
                      # method = "Laplace",
-                     nAGQ = 1, 
-                     REML = FALSE)
-```
-
-```
-## Warning: extra argument(s) 'REML' disregarded
-```
-
-```
-## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control
-## $checkConv, : Model failed to converge with max|grad| = 0.177113 (tol =
-## 0.001, component 1)
-```
-
-```
-## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, : Model is nearly unidentifiable: very large eigenvalue
-##  - Rescale variables?
-```
-
-```r
-summary(ChoiceModel_time)
-```
-
-```
-## Generalized linear mixed model fit by maximum likelihood (Laplace
-##   Approximation) [glmerMod]
-##  Family: binomial  ( logit )
-## Formula: egoChoice ~ Exp * offset * axis + Exp * centered_trial + (1 |  
-##     fl)
-##    Data: resAll
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   2563.4   2631.6  -1270.7   2541.4     3633 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -7.2415 -0.3035 -0.1091  0.1950  8.6844 
-## 
-## Random effects:
-##  Groups Name        Variance Std.Dev.
-##  fl     (Intercept) 11.94    3.455   
-## Number of obs: 3644, groups:  fl, 188
-## 
-## Fixed effects:
-##                               Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)                  0.8657558  0.0003995    2167   <2e-16 ***
-## Exp1B                       -2.3699630  0.0003995   -5932   <2e-16 ***
-## offset90                     0.0504526  0.0003995     126   <2e-16 ***
-## axissagittal                -1.8714815  0.0003996   -4683   <2e-16 ***
-## centered_trial              -0.6354645  0.0003997   -1590   <2e-16 ***
-## Exp1B:offset90               0.0916124  0.0003995     229   <2e-16 ***
-## Exp1B:axissagittal           1.3376183  0.0003995    3348   <2e-16 ***
-## offset90:axissagittal        0.2795586  0.0003995     700   <2e-16 ***
-## Exp1B:centered_trial         0.0449889  0.0003996     113   <2e-16 ***
-## Exp1B:offset90:axissagittal -0.5947548  0.0003995   -1489   <2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Correlation of Fixed Effects:
-##             (Intr) Exp1B offs90 axssgt cntrd_ Ex1B:90 Exp1B: off90: Ex1B:_
-## Exp1B       0.000                                                         
-## offset90    0.000  0.000                                                  
-## axissagittl 0.000  0.000 0.000                                            
-## centerd_trl 0.000  0.000 0.000  0.000                                     
-## Exp1B:ffs90 0.000  0.000 0.000  0.000  0.000                              
-## Exp1B:xssgt 0.000  0.000 0.000  0.000  0.000  0.000                       
-## offst90:xss 0.000  0.000 0.000  0.000  0.000  0.000   0.000               
-## Exp1B:cntr_ 0.000  0.000 0.000  0.000  0.000  0.000   0.000  0.000        
-## Exp1B:ff90: 0.000  0.000 0.000  0.000  0.000  0.000   0.000  0.000  0.000 
-## convergence code: 0
-## Model failed to converge with max|grad| = 0.177113 (tol = 0.001, component 1)
-## Model is nearly unidentifiable: very large eigenvalue
-##  - Rescale variables?
+                     #nAGQ = 1, 
+                     #REML = FALSE)
+#summary(ChoiceModel_time)
 ```
 
 ## Response Time models (Ambiguous/Critical trials)
@@ -2052,90 +1739,9 @@ resAllError$perspectivePreference = as.factor(as.matrix(resAllError$perspectiveP
 resAllError$perspectivePreference= relevel(resAllError$perspectivePreference, ref = "ego")
 
 ##Check for any "holes" in the design
-with(resAllError, table(Exp, offset, axis, perspectivePreference))
-```
+#with(resAllError, table(Exp, offset, axis, perspectivePreference))
+#str(resAllError)
 
-```
-## , , axis = lateral, perspectivePreference = ego
-## 
-##     offset
-## Exp    0  90
-##   1A 190 127
-##   1B 108  71
-## 
-## , , axis = sagittal, perspectivePreference = ego
-## 
-##     offset
-## Exp    0  90
-##   1A 190 126
-##   1B 106  69
-## 
-## , , axis = lateral, perspectivePreference = mixed
-## 
-##     offset
-## Exp    0  90
-##   1A 101  67
-##   1B 107  72
-## 
-## , , axis = sagittal, perspectivePreference = mixed
-## 
-##     offset
-## Exp    0  90
-##   1A 102  67
-##   1B 103  69
-## 
-## , , axis = lateral, perspectivePreference = other
-## 
-##     offset
-## Exp    0  90
-##   1A 255 172
-##   1B 353 229
-## 
-## , , axis = sagittal, perspectivePreference = other
-## 
-##     offset
-## Exp    0  90
-##   1A 255 172
-##   1B 351 235
-```
-
-```r
-str(resAllError)
-```
-
-```
-## 'data.frame':	3697 obs. of  16 variables:
-##  $ fl                   : Factor w/ 188 levels "100.txt","102.txt",..: 1 1 1 1 1 1 1 1 1 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ trial                : Factor w/ 40 levels " 2"," 3"," 4",..: 2 4 5 8 9 10 13 14 18 19 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ instruction          : Factor w/ 4 levels "back","fron",..: 3 4 1 2 2 2 3 4 1 3 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ folder_config        : Factor w/ 4 levels "D1","D2","H",..: 2 2 1 1 2 2 3 2 4 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ ppos                 : Factor w/ 3 levels "init_0","init_270",..: 1 1 1 2 1 3 1 2 1 3 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ RTDV                 : Factor w/ 1362 levels " 394"," 401",..: 370 1297 1079 1100 1240 1192 934 1257 954 605 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ AC                   : Factor w/ 1 level "0": 1 1 1 1 1 1 1 1 1 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ totalDistanceDV      : Factor w/ 3697 levels " 59.24732"," 72.81244",..: 1689 3576 3361 3615 3628 448 3590 3680 3662 3437 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ xFlipDV              : Factor w/ 13 levels " 0"," 1"," 2",..: 2 4 3 2 5 3 4 8 4 5 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ chosen               : Factor w/ 2 levels "F1","F2": 1 2 1 2 1 1 1 2 1 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ cor                  : Factor w/ 2 levels "F1","F2": 1 2 1 2 1 1 1 2 1 1 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ err                  : Factor w/ 2 levels " TRUE","FALSE": 2 2 2 2 2 2 2 2 2 2 ...
-##   ..- attr(*, "names")= chr  "1" "2" "3" "4" ...
-##  $ perspectivePreference: Factor w/ 3 levels "ego","mixed",..: 3 3 3 3 3 3 3 3 3 3 ...
-##  $ Exp                  : Factor w/ 2 levels "1A","1B": 1 1 1 1 1 1 1 1 1 1 ...
-##  $ axis                 : Factor w/ 2 levels "lateral","sagittal": 1 1 2 2 2 2 1 1 2 1 ...
-##  $ offset               : Factor w/ 2 levels "0","90": 1 1 1 2 1 2 1 2 1 2 ...
-```
-
-```r
 #make sure the DVs are of the appropriate type
 resAllError$err = as.factor(as.matrix(resAllError$err))
 resAllError$RTDV = as.numeric(as.matrix(resAllError$RTDV))

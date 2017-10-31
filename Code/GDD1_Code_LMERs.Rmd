@@ -184,10 +184,10 @@ pander(aggregate(totalDistanceDV~perspectivePreference+Exp+axis,data=resAll,FUN=
 pander(aggregate(xFlipDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 
 # Control trials (excluding offset, for simplicity)
-pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
-pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
-pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
-pander(aggregate(xFlipDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
+#pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
+#pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
+#pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
+#pander(aggregate(xFlipDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
 
 ```
 
@@ -238,7 +238,7 @@ colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1B", "GDD1A")
 preferenceCounts <- as.table(preferenceCounts)
 summary(preferenceCounts)
-chisq.test(preferenceCounts)
+#chisq.test(preferenceCounts)
 
 ```
 
@@ -254,7 +254,7 @@ colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1B", "GDD1A")
 preferenceCounts <- as.table(preferenceCounts)
 summary(preferenceCounts)
-chisq.test(preferenceCounts)
+#chisq.test(preferenceCounts)
 
 ```
 
@@ -268,7 +268,7 @@ colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1A", "DDKstudy1")
 preferenceCounts <- as.table(preferenceCounts)
 summary(preferenceCounts)
-chisq.test(preferenceCounts) 
+#chisq.test(preferenceCounts) 
 
 #The two distributions don't differ significantly. Good news for replication.
 
@@ -294,8 +294,8 @@ resAll$trial = as.integer(as.matrix(resAll$trial))
 resAll$perspectivePreference= relevel(resAll$perspectivePreference, ref = "ego")
 
 ##Check for any "holes" in the design
-with(resAll, table(Exp, offset, axis, perspectivePreference))
-str(resAll)
+#with(resAll, table(Exp, offset, axis, perspectivePreference))
+#str(resAll)
 
 #make sure DVs are of the right type
 resAll$egoChoice = as.factor(as.matrix(resAll$egoChoice))
@@ -325,17 +325,17 @@ ChoiceModel1 = glmer(egoChoice ~ Exp*offset*axis
 summary(ChoiceModel1)
 
 #This model does not converge and is not reported in the manuscript
-ChoiceModel_time = glmer(egoChoice ~ Exp*offset*axis+ Exp*centered_trial 
-                     + (1 | fl),
+#ChoiceModel_time = glmer(egoChoice ~ Exp*offset*axis+ Exp*centered_trial 
+                     #+ (1 | fl),
                      #+ (0 + offset | fl),
                      #+ (0 + axis | fl),
                      #+ (0 + offset:axis | fl), #did not converge
-                     data=resAll,
-                     family = "binomial",
+                     #data=resAll,
+                     #family = "binomial",
                      # method = "Laplace",
-                     nAGQ = 1, 
-                     REML = FALSE)
-summary(ChoiceModel_time)
+                     #nAGQ = 1, 
+                     #REML = FALSE)
+#summary(ChoiceModel_time)
 
 ```
 
@@ -453,8 +453,8 @@ resAllError$perspectivePreference = as.factor(as.matrix(resAllError$perspectiveP
 resAllError$perspectivePreference= relevel(resAllError$perspectivePreference, ref = "ego")
 
 ##Check for any "holes" in the design
-with(resAllError, table(Exp, offset, axis, perspectivePreference))
-str(resAllError)
+#with(resAllError, table(Exp, offset, axis, perspectivePreference))
+#str(resAllError)
 
 #make sure the DVs are of the appropriate type
 resAllError$err = as.factor(as.matrix(resAllError$err))

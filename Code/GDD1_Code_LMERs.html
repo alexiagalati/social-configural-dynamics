@@ -552,424 +552,10 @@ pander(aggregate(egoChoice~Exp,data=resAll,FUN=mean))</code></pre>
 </tbody>
 </table>
 <pre class="r"><code># Control trials (excluding offset, for simplicity)
-pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)</code></pre>
-<table style="width:51%;">
-<colgroup>
-<col width="33%"></col>
-<col width="8%"></col>
-<col width="9%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">perspectivePreference</th>
-<th align="center">Exp</th>
-<th align="center">err</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">1A</td>
-<td align="center">0.03633</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">1A</td>
-<td align="center">0.1306</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">1A</td>
-<td align="center">0.01991</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">1B</td>
-<td align="center">0.01695</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">1B</td>
-<td align="center">0.2507</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">1B</td>
-<td align="center">0.02312</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))</code></pre>
-<table style="width:75%;">
-<colgroup>
-<col width="33%"></col>
-<col width="12%"></col>
-<col width="12%"></col>
-<col width="8%"></col>
-<col width="8%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">perspectivePreference</th>
-<th align="center">offset</th>
-<th align="center">axis</th>
-<th align="center">Exp</th>
-<th align="center">RTDV</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">0</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1235</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">0</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1113</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">0</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1428</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">90</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1312</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">90</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1577</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">90</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1671</td>
-</tr>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">0</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1174</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">0</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1202</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">0</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1340</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">90</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1292</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">90</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1318</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">90</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1456</td>
-</tr>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">0</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1019</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">0</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1314</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">0</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1376</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">90</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1060</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">90</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1477</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">90</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1678</td>
-</tr>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">0</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">1070</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">0</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">1419</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">0</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">1276</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">90</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">1294</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">90</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">1763</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">90</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">1357</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))</code></pre>
-<table style="width:78%;">
-<colgroup>
-<col width="33%"></col>
-<col width="12%"></col>
-<col width="8%"></col>
-<col width="23%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">perspectivePreference</th>
-<th align="center">axis</th>
-<th align="center">Exp</th>
-<th align="center">totalDistanceDV</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">278.5</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">285.4</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">294.6</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">275.9</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">282</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">293</td>
-</tr>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">261.1</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">296.7</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">287.4</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">269.2</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">294</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">284.2</td>
-</tr>
-</tbody>
-</table>
-<pre class="r"><code>pander(aggregate(xFlipDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))</code></pre>
-<table style="width:67%;">
-<colgroup>
-<col width="33%"></col>
-<col width="12%"></col>
-<col width="8%"></col>
-<col width="12%"></col>
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">perspectivePreference</th>
-<th align="center">axis</th>
-<th align="center">Exp</th>
-<th align="center">xFlipDV</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1.498</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1.696</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">lateral</td>
-<td align="center">1A</td>
-<td align="center">1.714</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1.585</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1.639</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">sagittal</td>
-<td align="center">1A</td>
-<td align="center">1.707</td>
-</tr>
-<tr class="odd">
-<td align="center">ego</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1.469</td>
-</tr>
-<tr class="even">
-<td align="center">mixed</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1.816</td>
-</tr>
-<tr class="odd">
-<td align="center">other</td>
-<td align="center">lateral</td>
-<td align="center">1B</td>
-<td align="center">1.759</td>
-</tr>
-<tr class="even">
-<td align="center">ego</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">1.697</td>
-</tr>
-<tr class="odd">
-<td align="center">mixed</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">2.32</td>
-</tr>
-<tr class="even">
-<td align="center">other</td>
-<td align="center">sagittal</td>
-<td align="center">1B</td>
-<td align="center">1.732</td>
-</tr>
-</tbody>
-</table>
+#pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
+#pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
+#pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
+#pander(aggregate(xFlipDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))</code></pre>
 </div>
 <div id="exploratory-plotting-of-dvs-across-trials-to-explore-stabilization" class="section level2">
 <h2>Exploratory plotting of DVs across trials to explore stabilization</h2>
@@ -1009,12 +595,7 @@ summary(preferenceCounts)</code></pre>
 ## Number of factors: 2 
 ## Test for independence of all factors:
 ##  Chisq = 6.93, df = 2, p-value = 0.03128</code></pre>
-<pre class="r"><code>chisq.test(preferenceCounts)</code></pre>
-<pre><code>## 
-##  Pearson's Chi-squared test
-## 
-## data:  preferenceCounts
-## X-squared = 6.9296, df = 2, p-value = 0.03128</code></pre>
+<pre class="r"><code>#chisq.test(preferenceCounts)</code></pre>
 <p>Let’s also compare the distributions when the classification in ego, other, mixed is based on lateral instructions only (left-right only).</p>
 <p>This is because mixed responders (based on the previous classification, on all instruction types), made high errors on control front-back trials (esp in Exp 1B), possibly due to using a different mapping to interpret front-back. This may suggest that their responses on ambiguous trials may have not been “mixed” or random but may have simply reflected this different mapping on front-back trials. We make this point in the paper.</p>
 <pre class="r"><code>preferenceCounts &lt;- matrix(c(61, 25, 9, 29, 42, 22), ncol=3, byrow=TRUE)
@@ -1026,12 +607,7 @@ summary(preferenceCounts)</code></pre>
 ## Number of factors: 2 
 ## Test for independence of all factors:
 ##  Chisq = 21.124, df = 2, p-value = 2.588e-05</code></pre>
-<pre class="r"><code>chisq.test(preferenceCounts)</code></pre>
-<pre><code>## 
-##  Pearson's Chi-squared test
-## 
-## data:  preferenceCounts
-## X-squared = 21.124, df = 2, p-value = 2.588e-05</code></pre>
+<pre class="r"><code>#chisq.test(preferenceCounts)</code></pre>
 <p>Let’s finally compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 In DDK1 there were 43 other, 31 ego, and 8 mixed.</p>
 <pre class="r"><code>preferenceCounts &lt;- matrix(c(43, 33, 17, 43, 31, 8), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) &lt;- c(&quot;other&quot;, &quot;ego&quot;, &quot;mixed&quot;)
@@ -1042,13 +618,9 @@ summary(preferenceCounts)</code></pre>
 ## Number of factors: 2 
 ## Test for independence of all factors:
 ##  Chisq = 2.6214, df = 2, p-value = 0.2696</code></pre>
-<pre class="r"><code>chisq.test(preferenceCounts) </code></pre>
-<pre><code>## 
-##  Pearson's Chi-squared test
-## 
-## data:  preferenceCounts
-## X-squared = 2.6214, df = 2, p-value = 0.2696</code></pre>
-<pre class="r"><code>#The two distributions don't differ significantly. Good news for replication.</code></pre>
+<pre class="r"><code>#chisq.test(preferenceCounts) 
+
+#The two distributions don't differ significantly. Good news for replication.</code></pre>
 </div>
 <div id="linear-mixed-effects-models-for-ambiguous-critical-trials" class="section level2">
 <h2>Linear mixed effects models for ambiguous (critical) trials</h2>
@@ -1066,78 +638,10 @@ resAll$trial = as.integer(as.matrix(resAll$trial))
 resAll$perspectivePreference= relevel(resAll$perspectivePreference, ref = &quot;ego&quot;)
 
 ##Check for any &quot;holes&quot; in the design
-with(resAll, table(Exp, offset, axis, perspectivePreference))</code></pre>
-<pre><code>## , , axis = lateral, perspectivePreference = ego
-## 
-##     offset
-## Exp  180  90
-##   1A 189 124
-##   1B 107  73
-## 
-## , , axis = sagittal, perspectivePreference = ego
-## 
-##     offset
-## Exp  180  90
-##   1A 188 128
-##   1B 107  72
-## 
-## , , axis = lateral, perspectivePreference = mixed
-## 
-##     offset
-## Exp  180  90
-##   1A  98  64
-##   1B 105  70
-## 
-## , , axis = sagittal, perspectivePreference = mixed
-## 
-##     offset
-## Exp  180  90
-##   1A  98  67
-##   1B 102  67
-## 
-## , , axis = lateral, perspectivePreference = other
-## 
-##     offset
-## Exp  180  90
-##   1A 246 165
-##   1B 334 230
-## 
-## , , axis = sagittal, perspectivePreference = other
-## 
-##     offset
-## Exp  180  90
-##   1A 256 172
-##   1B 347 235</code></pre>
-<pre class="r"><code>str(resAll)</code></pre>
-<pre><code>## 'data.frame':    3644 obs. of  16 variables:
-##  $ fl                   : Factor w/ 188 levels &quot;100.txt&quot;,&quot;102.txt&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ trial                : int  2 4 7 8 12 13 16 17 18 21 ...
-##  $ instruction          : Factor w/ 4 levels &quot;back&quot;,&quot;fron&quot;,..: 3 1 3 4 1 3 2 2 3 4 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ folder_config        : Factor w/ 4 levels &quot;D1&quot;,&quot;D2&quot;,&quot;H&quot;,..: 2 1 1 1 2 2 1 4 3 2 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ ppos                 : Factor w/ 3 levels &quot;init_180&quot;,&quot;init_270&quot;,..: 3 3 2 1 2 1 1 1 1 3 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ RTDV                 : Factor w/ 1459 levels &quot; 397&quot;,&quot; 414&quot;,..: 154 493 1234 1411 914 1437 954 626 1106 493 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ totalDistanceDV      : Factor w/ 3644 levels &quot; 26.60409&quot;,&quot; 38.59668&quot;,..: 2 1653 3634 3622 3582 3584 3492 2292 3631 3447 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ xFlipDV              : Factor w/ 14 levels &quot; 0&quot;,&quot; 1&quot;,&quot; 2&quot;,..: 1 2 2 7 4 5 5 5 5 5 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ AC                   : Factor w/ 1 level &quot;0&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ chosen               : Factor w/ 2 levels &quot;F1&quot;,&quot;F2&quot;: 1 1 2 1 1 1 1 1 2 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ other                : Factor w/ 2 levels &quot;F1&quot;,&quot;F2&quot;: 2 2 2 1 1 2 1 1 2 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ perspectivePreference: Factor w/ 3 levels &quot;ego&quot;,&quot;mixed&quot;,..: 3 3 3 3 3 3 3 3 3 3 ...
-##  $ Exp                  : Factor w/ 2 levels &quot;1A&quot;,&quot;1B&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ axis                 : Factor w/ 2 levels &quot;lateral&quot;,&quot;sagittal&quot;: 1 2 1 1 2 1 2 2 1 1 ...
-##  $ offset               : Factor w/ 2 levels &quot;180&quot;,&quot;90&quot;: 2 2 2 1 2 1 1 1 1 2 ...
-##  $ egoChoice            : Factor w/ 2 levels &quot;0&quot;,&quot;1&quot;: 2 2 1 1 1 2 1 1 1 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</code></pre>
-<pre class="r"><code>#make sure DVs are of the right type
+#with(resAll, table(Exp, offset, axis, perspectivePreference))
+#str(resAll)
+
+#make sure DVs are of the right type
 resAll$egoChoice = as.factor(as.matrix(resAll$egoChoice))
 resAll$RTDV = as.numeric(as.matrix(resAll$RTDV))
 resAll$totalDistanceDV = as.numeric(as.matrix(resAll$totalDistanceDV))
@@ -1206,72 +710,17 @@ resAll$centered_trial =scale(resAll$trial)</code></pre>
 ## convergence code: 0
 ## Model failed to converge with max|grad| = 0.00320202 (tol = 0.001, component 1)</code></pre>
 <pre class="r"><code>#This model does not converge and is not reported in the manuscript
-ChoiceModel_time = glmer(egoChoice ~ Exp*offset*axis+ Exp*centered_trial 
-                     + (1 | fl),
+#ChoiceModel_time = glmer(egoChoice ~ Exp*offset*axis+ Exp*centered_trial 
+                     #+ (1 | fl),
                      #+ (0 + offset | fl),
                      #+ (0 + axis | fl),
                      #+ (0 + offset:axis | fl), #did not converge
-                     data=resAll,
-                     family = &quot;binomial&quot;,
+                     #data=resAll,
+                     #family = &quot;binomial&quot;,
                      # method = &quot;Laplace&quot;,
-                     nAGQ = 1, 
-                     REML = FALSE)</code></pre>
-<pre><code>## Warning: extra argument(s) 'REML' disregarded</code></pre>
-<pre><code>## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl = control
-## $checkConv, : Model failed to converge with max|grad| = 0.177113 (tol =
-## 0.001, component 1)</code></pre>
-<pre><code>## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl = control$checkConv, : Model is nearly unidentifiable: very large eigenvalue
-##  - Rescale variables?</code></pre>
-<pre class="r"><code>summary(ChoiceModel_time)</code></pre>
-<pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
-##   Approximation) [glmerMod]
-##  Family: binomial  ( logit )
-## Formula: egoChoice ~ Exp * offset * axis + Exp * centered_trial + (1 |  
-##     fl)
-##    Data: resAll
-## 
-##      AIC      BIC   logLik deviance df.resid 
-##   2563.4   2631.6  -1270.7   2541.4     3633 
-## 
-## Scaled residuals: 
-##     Min      1Q  Median      3Q     Max 
-## -7.2415 -0.3035 -0.1091  0.1950  8.6844 
-## 
-## Random effects:
-##  Groups Name        Variance Std.Dev.
-##  fl     (Intercept) 11.94    3.455   
-## Number of obs: 3644, groups:  fl, 188
-## 
-## Fixed effects:
-##                               Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)                  0.8657558  0.0003995    2167   &lt;2e-16 ***
-## Exp1B                       -2.3699630  0.0003995   -5932   &lt;2e-16 ***
-## offset90                     0.0504526  0.0003995     126   &lt;2e-16 ***
-## axissagittal                -1.8714815  0.0003996   -4683   &lt;2e-16 ***
-## centered_trial              -0.6354645  0.0003997   -1590   &lt;2e-16 ***
-## Exp1B:offset90               0.0916124  0.0003995     229   &lt;2e-16 ***
-## Exp1B:axissagittal           1.3376183  0.0003995    3348   &lt;2e-16 ***
-## offset90:axissagittal        0.2795586  0.0003995     700   &lt;2e-16 ***
-## Exp1B:centered_trial         0.0449889  0.0003996     113   &lt;2e-16 ***
-## Exp1B:offset90:axissagittal -0.5947548  0.0003995   -1489   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Correlation of Fixed Effects:
-##             (Intr) Exp1B offs90 axssgt cntrd_ Ex1B:90 Exp1B: off90: Ex1B:_
-## Exp1B       0.000                                                         
-## offset90    0.000  0.000                                                  
-## axissagittl 0.000  0.000 0.000                                            
-## centerd_trl 0.000  0.000 0.000  0.000                                     
-## Exp1B:ffs90 0.000  0.000 0.000  0.000  0.000                              
-## Exp1B:xssgt 0.000  0.000 0.000  0.000  0.000  0.000                       
-## offst90:xss 0.000  0.000 0.000  0.000  0.000  0.000   0.000               
-## Exp1B:cntr_ 0.000  0.000 0.000  0.000  0.000  0.000   0.000  0.000        
-## Exp1B:ff90: 0.000  0.000 0.000  0.000  0.000  0.000   0.000  0.000  0.000 
-## convergence code: 0
-## Model failed to converge with max|grad| = 0.177113 (tol = 0.001, component 1)
-## Model is nearly unidentifiable: very large eigenvalue
-##  - Rescale variables?</code></pre>
+                     #nAGQ = 1, 
+                     #REML = FALSE)
+#summary(ChoiceModel_time)</code></pre>
 </div>
 <div id="response-time-models-ambiguouscritical-trials" class="section level2">
 <h2>Response Time models (Ambiguous/Critical trials)</h2>
@@ -3601,79 +3050,10 @@ resAllError$perspectivePreference = as.factor(as.matrix(resAllError$perspectiveP
 resAllError$perspectivePreference= relevel(resAllError$perspectivePreference, ref = &quot;ego&quot;)
 
 ##Check for any &quot;holes&quot; in the design
-with(resAllError, table(Exp, offset, axis, perspectivePreference))</code></pre>
-<pre><code>## , , axis = lateral, perspectivePreference = ego
-## 
-##     offset
-## Exp    0  90
-##   1A 190 127
-##   1B 108  71
-## 
-## , , axis = sagittal, perspectivePreference = ego
-## 
-##     offset
-## Exp    0  90
-##   1A 190 126
-##   1B 106  69
-## 
-## , , axis = lateral, perspectivePreference = mixed
-## 
-##     offset
-## Exp    0  90
-##   1A 101  67
-##   1B 107  72
-## 
-## , , axis = sagittal, perspectivePreference = mixed
-## 
-##     offset
-## Exp    0  90
-##   1A 102  67
-##   1B 103  69
-## 
-## , , axis = lateral, perspectivePreference = other
-## 
-##     offset
-## Exp    0  90
-##   1A 255 172
-##   1B 353 229
-## 
-## , , axis = sagittal, perspectivePreference = other
-## 
-##     offset
-## Exp    0  90
-##   1A 255 172
-##   1B 351 235</code></pre>
-<pre class="r"><code>str(resAllError)</code></pre>
-<pre><code>## 'data.frame':    3697 obs. of  16 variables:
-##  $ fl                   : Factor w/ 188 levels &quot;100.txt&quot;,&quot;102.txt&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ trial                : Factor w/ 40 levels &quot; 2&quot;,&quot; 3&quot;,&quot; 4&quot;,..: 2 4 5 8 9 10 13 14 18 19 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ instruction          : Factor w/ 4 levels &quot;back&quot;,&quot;fron&quot;,..: 3 4 1 2 2 2 3 4 1 3 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ folder_config        : Factor w/ 4 levels &quot;D1&quot;,&quot;D2&quot;,&quot;H&quot;,..: 2 2 1 1 2 2 3 2 4 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ ppos                 : Factor w/ 3 levels &quot;init_0&quot;,&quot;init_270&quot;,..: 1 1 1 2 1 3 1 2 1 3 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ RTDV                 : Factor w/ 1362 levels &quot; 394&quot;,&quot; 401&quot;,..: 370 1297 1079 1100 1240 1192 934 1257 954 605 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ AC                   : Factor w/ 1 level &quot;0&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ totalDistanceDV      : Factor w/ 3697 levels &quot; 59.24732&quot;,&quot; 72.81244&quot;,..: 1689 3576 3361 3615 3628 448 3590 3680 3662 3437 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ xFlipDV              : Factor w/ 13 levels &quot; 0&quot;,&quot; 1&quot;,&quot; 2&quot;,..: 2 4 3 2 5 3 4 8 4 5 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ chosen               : Factor w/ 2 levels &quot;F1&quot;,&quot;F2&quot;: 1 2 1 2 1 1 1 2 1 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ cor                  : Factor w/ 2 levels &quot;F1&quot;,&quot;F2&quot;: 1 2 1 2 1 1 1 2 1 1 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ err                  : Factor w/ 2 levels &quot; TRUE&quot;,&quot;FALSE&quot;: 2 2 2 2 2 2 2 2 2 2 ...
-##   ..- attr(*, &quot;names&quot;)= chr  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-##  $ perspectivePreference: Factor w/ 3 levels &quot;ego&quot;,&quot;mixed&quot;,..: 3 3 3 3 3 3 3 3 3 3 ...
-##  $ Exp                  : Factor w/ 2 levels &quot;1A&quot;,&quot;1B&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ axis                 : Factor w/ 2 levels &quot;lateral&quot;,&quot;sagittal&quot;: 1 1 2 2 2 2 1 1 2 1 ...
-##  $ offset               : Factor w/ 2 levels &quot;0&quot;,&quot;90&quot;: 1 1 1 2 1 2 1 2 1 2 ...</code></pre>
-<pre class="r"><code>#make sure the DVs are of the appropriate type
+#with(resAllError, table(Exp, offset, axis, perspectivePreference))
+#str(resAllError)
+
+#make sure the DVs are of the appropriate type
 resAllError$err = as.factor(as.matrix(resAllError$err))
 resAllError$RTDV = as.numeric(as.matrix(resAllError$RTDV))
 resAllError$totalDistanceDV = as.numeric(as.matrix(resAllError$totalDistanceDV))
