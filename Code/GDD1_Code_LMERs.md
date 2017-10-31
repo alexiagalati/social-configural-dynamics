@@ -1,6 +1,6 @@
 # Social and configural effects on the cognitive dynamics of perspective-taking
 Alexia Galati and Rick Dale  
-`r format(Sys.Date())`  
+10/31/2017  
 
 
 
@@ -217,259 +217,139 @@ Let's get some descriptives for ambiguous and control trials
 
 
 ```r
-# Ambiguous/critical trials 
-pander(aggregate(egoChoice~Exp+offset+axis,data=resAll,FUN=mean))
+# Ambiguous/critical trials (excluding offset, for simplicity)
+pander(aggregate(egoChoice~Exp,data=resAll,FUN=mean))
 ```
 
 
------------------------------------
- Exp   offset    axis    egoChoice 
------ -------- -------- -----------
- 1A     180    lateral    0.5553   
+-----------------
+ Exp   egoChoice 
+----- -----------
+ 1A     0.4696   
 
- 1B     180    lateral    0.3425   
-
- 1A      90    lateral    0.5722   
-
- 1B      90    lateral    0.3646   
-
- 1A     180    sagittal   0.3745   
-
- 1B     180    sagittal   0.2932   
-
- 1A      90    sagittal   0.3869   
-
- 1B      90    sagittal   0.2647   
------------------------------------
+ 1B     0.3164   
+-----------------
 
 ```r
-pander(aggregate(RTDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
+pander(aggregate(RTDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 ```
 
 
-------------------------------------------------------
- perspectivePreference   Exp   offset    axis    RTDV 
------------------------ ----- -------- -------- ------
-          ego            1A     180    lateral   1240 
+---------------------------------------------
+ perspectivePreference   Exp    axis    RTDV 
+----------------------- ----- -------- ------
+          ego            1A   lateral   1250 
 
-         mixed           1A     180    lateral   1688 
+         mixed           1A   lateral   1583 
 
-         other           1A     180    lateral   2015 
+         other           1A   lateral   1885 
 
-          ego            1B     180    lateral   1106 
+          ego            1B   lateral   1089 
 
-         mixed           1B     180    lateral   1736 
+         mixed           1B   lateral   1645 
 
-         other           1B     180    lateral   2012 
+         other           1B   lateral   1902 
 
-          ego            1A      90    lateral   1265 
+          ego            1A   sagittal  1322 
 
-         mixed           1A      90    lateral   1423 
+         mixed           1A   sagittal  1298 
 
-         other           1A      90    lateral   1691 
+         other           1A   sagittal  1409 
 
-          ego            1B      90    lateral   1063 
+          ego            1B   sagittal  1373 
 
-         mixed           1B      90    lateral   1508 
+         mixed           1B   sagittal  1688 
 
-         other           1B      90    lateral   1743 
-
-          ego            1A     180    sagittal  1345 
-
-         mixed           1A     180    sagittal  1376 
-
-         other           1A     180    sagittal  1462 
-
-          ego            1B     180    sagittal  1390 
-
-         mixed           1B     180    sagittal  1758 
-
-         other           1B     180    sagittal  1465 
-
-          ego            1A      90    sagittal  1290 
-
-         mixed           1A      90    sagittal  1183 
-
-         other           1A      90    sagittal  1328 
-
-          ego            1B      90    sagittal  1348 
-
-         mixed           1B      90    sagittal  1581 
-
-         other           1B      90    sagittal  1248 
-------------------------------------------------------
+         other           1B   sagittal  1378 
+---------------------------------------------
 
 ```r
-pander(aggregate(totalDistanceDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
-```
-
-
------------------------------------------------------------------
- perspectivePreference   Exp   offset    axis    totalDistanceDV 
------------------------ ----- -------- -------- -----------------
-          ego            1A     180    lateral        293.3      
-
-         mixed           1A     180    lateral        292.7      
-
-         other           1A     180    lateral        360.8      
-
-          ego            1B     180    lateral        271.1      
-
-         mixed           1B     180    lateral        317.5      
-
-         other           1B     180    lateral        331.7      
-
-          ego            1A      90    lateral        284.5      
-
-         mixed           1A      90    lateral        280.6      
-
-         other           1A      90    lateral        319.7      
-
-          ego            1B      90    lateral        263.6      
-
-         mixed           1B      90    lateral        294.8      
-
-         other           1B      90    lateral        296.6      
-
-          ego            1A     180    sagittal       283.9      
-
-         mixed           1A     180    sagittal       295.1      
-
-         other           1A     180    sagittal       317.8      
-
-          ego            1B     180    sagittal       267.8      
-
-         mixed           1B     180    sagittal       318.1      
-
-         other           1B     180    sagittal       303.2      
-
-          ego            1A      90    sagittal       287.3      
-
-         mixed           1A      90    sagittal       295.7      
-
-         other           1A      90    sagittal       298.8      
-
-          ego            1B      90    sagittal       278.5      
-
-         mixed           1B      90    sagittal        313       
-
-         other           1B      90    sagittal       278.1      
------------------------------------------------------------------
-
-```r
-pander(aggregate(xFlipDV~perspectivePreference+Exp+offset+axis,data=resAll,FUN=mean))
-```
-
-
----------------------------------------------------------
- perspectivePreference   Exp   offset    axis    xFlipDV 
------------------------ ----- -------- -------- ---------
-          ego            1A     180    lateral    1.556  
-
-         mixed           1A     180    lateral    1.755  
-
-         other           1A     180    lateral    2.439  
-
-          ego            1B     180    lateral    1.449  
-
-         mixed           1B     180    lateral    2.371  
-
-         other           1B     180    lateral    2.353  
-
-          ego            1A      90    lateral    1.661  
-
-         mixed           1A      90    lateral    1.672  
-
-         other           1A      90    lateral    1.933  
-
-          ego            1B      90    lateral    1.452  
-
-         mixed           1B      90    lateral    2.214  
-
-         other           1B      90    lateral    1.883  
-
-          ego            1A     180    sagittal   1.809  
-
-         mixed           1A     180    sagittal   1.929  
-
-         other           1A     180    sagittal   1.898  
-
-          ego            1B     180    sagittal   1.589  
-
-         mixed           1B     180    sagittal   2.402  
-
-         other           1B     180    sagittal   1.957  
-
-          ego            1A      90    sagittal   1.734  
-
-         mixed           1A      90    sagittal   1.567  
-
-         other           1A      90    sagittal   1.988  
-
-          ego            1B      90    sagittal     2    
-
-         mixed           1B      90    sagittal   2.463  
-
-         other           1B      90    sagittal   1.86   
----------------------------------------------------------
-
-```r
-# Control trials
-pander(aggregate(err~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
+pander(aggregate(totalDistanceDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 ```
 
 
 --------------------------------------------------------
- perspectivePreference   offset    axis    Exp    err   
------------------------ -------- -------- ----- --------
-          ego              0     lateral   1A   0.02632 
+ perspectivePreference   Exp    axis    totalDistanceDV 
+----------------------- ----- -------- -----------------
+          ego            1A   lateral        289.8      
 
-         mixed             0     lateral   1A   0.06931 
+         mixed           1A   lateral        287.9      
 
-         other             0     lateral   1A   0.003922
+         other           1A   lateral        344.3      
 
-          ego              90    lateral   1A    0.0315 
+          ego            1B   lateral         268       
 
-         mixed             90    lateral   1A   0.01493 
+         mixed           1B   lateral        308.4      
 
-         other             90    lateral   1A   0.02326 
+         other           1B   lateral        317.4      
 
-          ego              0     sagittal  1A   0.03158 
+          ego            1A   sagittal       285.3      
 
-         mixed             0     sagittal  1A    0.2353 
+         mixed           1A   sagittal       295.4      
 
-         other             0     sagittal  1A   0.03137 
+         other           1A   sagittal       310.1      
 
-          ego              90    sagittal  1A   0.06349 
+          ego            1B   sagittal       272.1      
 
-         mixed             90    sagittal  1A    0.1791 
+         mixed           1B   sagittal        316       
 
-         other             90    sagittal  1A   0.02326 
-
-          ego              0     lateral   1B   0.009259
-
-         mixed             0     lateral   1B   0.03738 
-
-         other             0     lateral   1B   0.02266 
-
-          ego              90    lateral   1B   0.01408 
-
-         mixed             90    lateral   1B   0.06944 
-
-         other             90    lateral   1B   0.03057 
-
-          ego              0     sagittal  1B   0.01887 
-
-         mixed             0     sagittal  1B    0.4466 
-
-         other             0     sagittal  1B    0.0114 
-
-          ego              90    sagittal  1B   0.02899 
-
-         mixed             90    sagittal  1B    0.4783 
-
-         other             90    sagittal  1B   0.03404 
+         other           1B   sagittal        293       
 --------------------------------------------------------
+
+```r
+pander(aggregate(xFlipDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
+```
+
+
+------------------------------------------------
+ perspectivePreference   Exp    axis    xFlipDV 
+----------------------- ----- -------- ---------
+          ego            1A   lateral    1.597  
+
+         mixed           1A   lateral    1.722  
+
+         other           1A   lateral    2.236  
+
+          ego            1B   lateral    1.45   
+
+         mixed           1B   lateral    2.309  
+
+         other           1B   lateral    2.161  
+
+          ego            1A   sagittal   1.778  
+
+         mixed           1A   sagittal   1.782  
+
+         other           1A   sagittal   1.935  
+
+          ego            1B   sagittal   1.754  
+
+         mixed           1B   sagittal   2.426  
+
+         other           1B   sagittal   1.918  
+------------------------------------------------
+
+```r
+# Control trials (excluding offset, for simplicity)
+pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
+```
+
+
+-------------------------------------
+ perspectivePreference   Exp    err  
+----------------------- ----- -------
+          ego            1A   0.03633
+
+         mixed           1A   0.1306 
+
+         other           1A   0.01991
+
+          ego            1B   0.01695
+
+         mixed           1B   0.2507 
+
+         other           1B   0.02312
+-------------------------------------
 
 ```r
 pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
@@ -529,118 +409,70 @@ pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN
 ------------------------------------------------------
 
 ```r
-pander(aggregate(totalDistanceDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
+pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
 ```
 
 
------------------------------------------------------------------
- perspectivePreference   offset    axis    Exp   totalDistanceDV 
------------------------ -------- -------- ----- -----------------
-          ego              0     lateral   1A         276.7      
+--------------------------------------------------------
+ perspectivePreference    axis    Exp   totalDistanceDV 
+----------------------- -------- ----- -----------------
+          ego           lateral   1A         278.5      
 
-         mixed             0     lateral   1A         274.4      
+         mixed          lateral   1A         285.4      
 
-         other             0     lateral   1A         281.8      
+         other          lateral   1A         294.6      
 
-          ego              90    lateral   1A         281.3      
+          ego           sagittal  1A         275.9      
 
-         mixed             90    lateral   1A          302       
+         mixed          sagittal  1A          282       
 
-         other             90    lateral   1A         313.6      
+         other          sagittal  1A          293       
 
-          ego              0     sagittal  1A         269.3      
+          ego           lateral   1B         261.1      
 
-         mixed             0     sagittal  1A         278.5      
+         mixed          lateral   1B         296.7      
 
-         other             0     sagittal  1A         286.2      
+         other          lateral   1B         287.4      
 
-          ego              90    sagittal  1A         285.9      
+          ego           sagittal  1B         269.2      
 
-         mixed             90    sagittal  1A         287.3      
+         mixed          sagittal  1B          294       
 
-         other             90    sagittal  1A         303.2      
-
-          ego              0     lateral   1B         251.4      
-
-         mixed             0     lateral   1B         289.5      
-
-         other             0     lateral   1B          277       
-
-          ego              90    lateral   1B         275.8      
-
-         mixed             90    lateral   1B         307.3      
-
-         other             90    lateral   1B         303.5      
-
-          ego              0     sagittal  1B         267.7      
-
-         mixed             0     sagittal  1B         289.2      
-
-         other             0     sagittal  1B          281       
-
-          ego              90    sagittal  1B         271.4      
-
-         mixed             90    sagittal  1B         301.1      
-
-         other             90    sagittal  1B          289       
------------------------------------------------------------------
+         other          sagittal  1B         284.2      
+--------------------------------------------------------
 
 ```r
-pander(aggregate(xFlipDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
+pander(aggregate(xFlipDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
 ```
 
 
----------------------------------------------------------
- perspectivePreference   offset    axis    Exp   xFlipDV 
------------------------ -------- -------- ----- ---------
-          ego              0     lateral   1A     1.521  
+------------------------------------------------
+ perspectivePreference    axis    Exp   xFlipDV 
+----------------------- -------- ----- ---------
+          ego           lateral   1A     1.498  
 
-         mixed             0     lateral   1A     1.465  
+         mixed          lateral   1A     1.696  
 
-         other             0     lateral   1A     1.612  
+         other          lateral   1A     1.714  
 
-          ego              90    lateral   1A     1.465  
+          ego           sagittal  1A     1.585  
 
-         mixed             90    lateral   1A     2.045  
+         mixed          sagittal  1A     1.639  
 
-         other             90    lateral   1A     1.866  
+         other          sagittal  1A     1.707  
 
-          ego              0     sagittal  1A     1.574  
+          ego           lateral   1B     1.469  
 
-         mixed             0     sagittal  1A     1.657  
+         mixed          lateral   1B     1.816  
 
-         other             0     sagittal  1A     1.675  
+         other          lateral   1B     1.759  
 
-          ego              90    sagittal  1A     1.603  
+          ego           sagittal  1B     1.697  
 
-         mixed             90    sagittal  1A     1.612  
+         mixed          sagittal  1B     2.32   
 
-         other             90    sagittal  1A     1.756  
-
-          ego              0     lateral   1B     1.426  
-
-         mixed             0     lateral   1B     1.682  
-
-         other             0     lateral   1B     1.612  
-
-          ego              90    lateral   1B     1.535  
-
-         mixed             90    lateral   1B     2.014  
-
-         other             90    lateral   1B     1.987  
-
-          ego              0     sagittal  1B     1.632  
-
-         mixed             0     sagittal  1B     2.214  
-
-         other             0     sagittal  1B     1.726  
-
-          ego              90    sagittal  1B     1.797  
-
-         mixed             90    sagittal  1B     2.478  
-
-         other             90    sagittal  1B     1.74   
----------------------------------------------------------
+         other          sagittal  1B     1.732  
+------------------------------------------------
 
 ## Exploratory plotting of DVs across trials to explore stabilization
 
@@ -653,9 +485,6 @@ Here, we plot the proportion of egocentric choices on ambigous trials over time 
 
 perspectiveByTrial1A = aggregate((1*(resAll1A$chosen!=resAll1A$other))~resAll1A$trial,FUN=mean)
 perspectiveByTrial1B = aggregate(( 1*(resAll1B$chosen!=resAll1B$other))~resAll1B$trial,FUN=mean)
-
-perspectiveByTrial1A_Othercentric = aggregate((1*(resAll1A$chosen[resAll1A$perspectivePreference %in% c('other')]!=resAll1A$other[resAll1A$perspectivePreference %in% c('other')]))~resAll1A$trial[resAll1A$perspectivePreference %in% c('other')],FUN=mean)
-perspectiveByTrial1B_Othercentric = aggregate((1*(resAll1B$chosen[resAll1B$perspectivePreference %in% c('other')]!=resAll1B$other[resAll1B$perspectivePreference %in% c('other')]))~resAll1B$trial[resAll1B$perspectivePreference %in% c('other')],FUN=mean)
 
 plot(perspectiveByTrial1A, main="Egocentric choice selection across trials in Exp 1A",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0, .90))
@@ -670,27 +499,34 @@ plot(perspectiveByTrial1B, main="Egocentric choice selection across trials in Ex
 
 ![](GDD1_Code_LMERs_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
 
+Let's look at other-centric responders only, in the two experiments. 
+
+
 ```r
+perspectiveByTrial1A_Othercentric = aggregate((1*(resAll1A$chosen[resAll1A$perspectivePreference %in% c('other')]!=resAll1A$other[resAll1A$perspectivePreference %in% c('other')]))~resAll1A$trial[resAll1A$perspectivePreference %in% c('other')],FUN=mean)
+perspectiveByTrial1B_Othercentric = aggregate((1*(resAll1B$chosen[resAll1B$perspectivePreference %in% c('other')]!=resAll1B$other[resAll1B$perspectivePreference %in% c('other')]))~resAll1B$trial[resAll1B$perspectivePreference %in% c('other')],FUN=mean)
+
 plot(perspectiveByTrial1A_Othercentric, # main="Egocentric choice selection of Other-centric responders across trials in Exp 1A",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0,.90))
 ```
 
-![](GDD1_Code_LMERs_files/figure-html/unnamed-chunk-5-3.png)<!-- -->
+![](GDD1_Code_LMERs_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 ```r
 plot(perspectiveByTrial1B_Othercentric, #main="Egocentric choice selection of Other-centric responders across trials in Exp 1B",
      xlab = "Trial number", ylab = "Mean proportion of egocentric choice", ylim = c(0, .90))
 ```
 
-![](GDD1_Code_LMERs_files/figure-html/unnamed-chunk-5-4.png)<!-- -->
+![](GDD1_Code_LMERs_files/figure-html/unnamed-chunk-6-2.png)<!-- -->
 
 ## Experiment comparisons
 
 Before getting to the LMERs, let's compare the distribution of other, ego, mixed responders across experiments.
 
+Let's first compare the distribution of other, ego, mixed responders in Exp 1A vs. Exp 1B.
+
 
 ```r
-# Let's compare the distribution of other, ego, mixed responders in GDD1B vs. GDD1A
 preferenceCounts <- matrix(c(59, 18, 18, 43, 33, 17), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1B", "GDD1A")
@@ -717,16 +553,13 @@ chisq.test(preferenceCounts)
 ## X-squared = 6.9296, df = 2, p-value = 0.03128
 ```
 
-```r
-# Let's also do a comparison between the distributions when the classification in ego, other, mixed
-# based on lateral instructions only (left-right only)
-# This is because mixed responders (based on the previous classification, on all instruction types),
-# made high errors on control front-back trials (esp in Exp 1B)
-# possibly due to using a different mapping to interpret front-back.
-# This may suggest that their responses on ambiguous trials may have not been "mixed" or random
-# but may have simply reflected this different mapping on front-back trials.
-# We make this point in the paper.
+Let's also compare the distributions when the classification in ego, other, mixed is based on lateral instructions only (left-right only).
 
+This is because mixed responders (based on the previous classification, on all instruction types), made high errors on control front-back trials (esp in Exp 1B), possibly due to using a different mapping to interpret front-back. This may suggest that their responses on ambiguous trials may have not been "mixed" or random but may have simply reflected this different mapping on front-back trials. We make this point in the paper.
+
+
+
+```r
 preferenceCounts <- matrix(c(61, 25, 9, 29, 42, 22), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1B", "GDD1A")
@@ -753,9 +586,11 @@ chisq.test(preferenceCounts)
 ## X-squared = 21.124, df = 2, p-value = 2.588e-05
 ```
 
+Let's finally compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 
+In DDK1 there were 43 other, 31 ego, and 8 mixed. 
+
+
 ```r
-# Let's compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 
-# In DDK1 there were 43 other, 31 ego, and 8 mixed. 
 preferenceCounts <- matrix(c(43, 33, 17, 43, 31, 8), ncol=3, byrow=TRUE)
 colnames(preferenceCounts) <- c("other", "ego", "mixed")
 rownames(preferenceCounts) <- c("GDD1A", "DDKstudy1")
