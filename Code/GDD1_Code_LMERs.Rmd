@@ -177,13 +177,13 @@ Let's get some descriptives for ambiguous and control trials
 
 ```{r}
 
-# Ambiguous/critical trials (excluding offset, for simplicity)
+# Ambiguous/critical trials (excluding offset, to simplify)
 pander(aggregate(egoChoice~Exp,data=resAll,FUN=mean))
 pander(aggregate(RTDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 pander(aggregate(totalDistanceDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 pander(aggregate(xFlipDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 
-# Control trials (excluding offset, for simplicity)
+# Control trials (excluding offset, to simplify)
 #pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
 #pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
 #pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
@@ -276,7 +276,7 @@ summary(preferenceCounts)
 
 ## Linear mixed effects models for ambiguous (critical) trials
 
-We created separate linear mixed effects models for each of the dependent variables (proprotion of egocentric choices, RT, total Distance, x-flips) on ambiguous/critical trials, combining the data from Experiment 1a and 1b. 
+We create separate linear mixed effects models for each of the dependent variables (proportion of egocentric choices, RT, total Distance, x-flips) on ambiguous/critical trials, combining the data from Experiment 1a and 1b. 
 
 We start with some pre-processing of the variables, setting the reference categories where relevant, and inspecting the data structure.
 
@@ -310,7 +310,7 @@ resAll$centered_trial =scale(resAll$trial)
 
 ## Egocentric Choice models (Ambiguous/Critical trials)
 
-For the model with perspective choice as dependent variable (egoChoice), the fixed factors included the orientation of the folders (Exp), the speaker’s position (offset: 180° vs. 90°; within-subjects), instruction's axis (axis: on a sagittal axis: front-back vs. a lateral axis: left-right; within-subjects), and their interactions. Given that the perspective choice as a dependent variable is a binary variable, we used a logistic regression model (Jaeger, 2008).   
+For the model with egocentric perspective choice as dependent variable (egoChoice), the fixed factors include the orientation of the folders (Exp), the speaker’s offset (offset: 180° vs. 90°; within-subjects), instruction's axis (axis: on a sagittal axis: front-back vs. a lateral axis: left-right; within-subjects), and their interactions. Given that the perspective choice as a dependent variable is a binary variable, we use a logistic regression model (Jaeger, 2008), specifying a "binomial" distribution.
 
 ```{r}
 ChoiceModel1 = glmer(egoChoice ~ Exp*offset*axis 
@@ -341,7 +341,7 @@ summary(ChoiceModel1)
 
 ## Response Time models (Ambiguous/Critical trials)
 
-For the models for response time (RTDV) and the other dependent measures (totalDistanceDV, xFlipDV), in addition to the fixed effects used in the egocentric choice model, we include perspective preference as a fixed effect (perspectivePreference: egocentric, other-centric, vs. mixed responder types; between-subjects), along with its interaction with the other factors.
+For the models for response time (RTDV) and the other dependent measures (totalDistanceDV, xFlipDV), below, in addition to the fixed effects used in the egocentric choice model, we include perspective preference as a fixed effect (perspectivePreference: egocentric, other-centric, vs. mixed responder types; between-subjects), along with its interaction with the other factors.
 
 ```{r}
 RTModel = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis 
