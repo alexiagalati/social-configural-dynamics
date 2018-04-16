@@ -9,9 +9,9 @@ A pre-print can be found at: https://psyarxiv.com/k2byq/
 The "Data" folder contains subfolders for each of the 3 experiments in this study (Exp 1A, Exp 1B, Exp 2) with the raw data as .txt files from each participant. It also contains a subfolder with the data of the follow-up experiments (follow-ups to Exp 1 and to Exp 2) in a single .csv file. 
 
 The "Code" folder contains: 
-<ul><li> code for processing the raw data from mouse-tracking to generate the dependent measures (batchTrajectoryAnalysis.R files)</li>>
-<li> code for obtaining the descriptives and running the linear mixed effects models reported in the paper (the Code_LMERs.R files)</li>> 
-<li> code for analyzing the data of the follow-up experiments</li>
+<ul><li> code for processing the raw data from mouse-tracking to generate the dependent measures (batchTrajectoryAnalysis.R files)</li>
+<li> code for obtaining the descriptives and running the linear mixed effects models reported in the paper (the Code_LMERs.R files)</li> 
+<li> code for analyzing the data of the follow-up experiments</li></ul>
 
 If you have any questions, please email me at alexia.galati@gmail.com
 
