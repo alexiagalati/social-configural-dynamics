@@ -1,8 +1,8 @@
 
 ---
 title: "Social and configural effects on the cognitive dynamics of perspective-taking"
-author: "Alexia Galati and Rick Dale"
-date: "10/31/2017"
+authors: "Alexia Galati, Rick Dale, & Nick Duran"
+date: "4/15/2017"
 output:
   html_document: 
     keep_md: true  
@@ -18,6 +18,9 @@ rm(list=ls())
 
 library(pander)
 library(lme4)
+library(afex)
+library(lmerTest)
+library(MuMIn) 
 
 source('xflip.R') # this also contains some functions we'll need (print_stats)
 
@@ -133,6 +136,7 @@ resAllError1B$Exp = "1B" #Experiment 1B: folder orientation varies = always alig
 
 ```
 
+
 ## Preliminaries for both experiments 
 
 We combine the dataframes for the two experiments and recode some of the variables.
@@ -178,12 +182,24 @@ Let's get some descriptives for ambiguous and control trials
 ```{r}
 
 # Ambiguous/critical trials (excluding offset, to simplify)
+
+#reconvert egoChoice to numeric if it was a factor for lmers
+#resAll$egoChoice = as.numeric(as.matrix(resAll$egoChoice))
 pander(aggregate(egoChoice~Exp,data=resAll,FUN=mean))
 pander(aggregate(RTDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 pander(aggregate(totalDistanceDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 pander(aggregate(xFlipDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 
+#This is to investigate what mixed responders are doing across trials in the two exps.
+#resAllmixed = resAll[resAll$perspectivePreference == 'mixed',]
+#options(max.print=999999)
+#pander(aggregate(egoChoice~Exp+trial+fl+perspectivePreference,data=resAllmixed,FUN=mean))
+
+
 # Control trials (excluding offset, to simplify)
+#reconvert egoChoice to numeric if it was a factor for lmers
+#resAllError$err = as.numeric(as.matrix(resAllError$err))
+
 #pander(aggregate(err~perspectivePreference+Exp,data=resAllError,FUN=mean)) #mixed responders have high errors .25 (this is due to front-back trials, see below)
 #pander(aggregate(RTDV~perspectivePreference+offset+axis+Exp,data=resAllError,FUN=mean))
 #pander(aggregate(totalDistanceDV~perspectivePreference+axis+Exp,data=resAllError,FUN=mean))
@@ -225,6 +241,23 @@ plot(perspectiveByTrial1B_Othercentric, #main="Egocentric choice selection of Ot
 
 ```
 
+Let's look at other DVs, specifically Response Time 
+
+```{r}
+
+RTByTrial2A = aggregate((1*(resAll2A$RTDV))~resAll2A$trial,FUN=mean)
+RTByTrial2B = aggregate(( 1*(resAll2B$RTDV))~resAll2B$trial,FUN=mean)
+
+plot(RTByTrial2A, main="Mean RT across trials in Exp 1A",
+     xlab = "Trial number", ylab = "Response Time")
+#abline(lm(resAll2A$RTDV~resAll2A$trial), col="red") # regression line (y~x) 
+
+plot(RTByTrial2B, main="Mean RT across trials in Exp 1B",
+     xlab = "Trial number", ylab = "Response Time")
+#abline(lm(resAll2A$RTDV~resAll2A$trial), col="red") # regression line (y~x) 
+
+```
+
 ## Experiment comparisons
 
 Before getting to the LMERs, let's compare the distribution of other, ego, mixed responders across experiments.
@@ -261,6 +294,7 @@ summary(preferenceCounts)
 Let's finally compare the distribution of other, ego, mixed responders in GDD1A vs. DDK study 1 
 In DDK1 there were 43 other, 31 ego, and 8 mixed. 
 
+
 ```{r}
 
 preferenceCounts <- matrix(c(43, 33, 17, 43, 31, 8), ncol=3, byrow=TRUE)
@@ -284,164 +318,654 @@ We start with some pre-processing of the variables, setting the reference catego
 
 resAll = as.data.frame(as.matrix(resAll))
 #Defining as factors in order to set reference categories next
-resAll$Exp = as.factor(as.matrix(resAll$Exp))
-resAll$offset = as.factor(as.matrix(resAll$offset))
-resAll$axis = as.factor(as.matrix(resAll$axis))
-resAll$perspectivePreference = as.factor(as.matrix(resAll$perspectivePreference))
-resAll$trial = as.integer(as.matrix(resAll$trial))
 
-#Setting reference categories
-resAll$perspectivePreference= relevel(resAll$perspectivePreference, ref = "ego")
+
+resAll$perspectivePreference = factor(resAll$perspectivePreference)
+resAll$axis = factor(resAll$axis)
+resAll$offset = factor(resAll$offset)
+resAll$egoChoice = factor(resAll$egoChoice)
+resAll$trial = as.integer(as.matrix(resAll$trial))
+str(resAll)
+
+contrasts(resAll$Exp)
+contrasts(resAll$perspectivePreference)
+contrasts(resAll$axis)
+contrasts(resAll$offset)
+
+
+#make sure DVs are of the right type
+resAll$RTDV = as.numeric(as.matrix(resAll$RTDV))
+resAll$totalDistanceDV = as.numeric(as.matrix(resAll$totalDistanceDV))
+resAll$xFlipDV = as.integer(as.matrix(resAll$xFlipDV))
+resAll$egoChoice = as.factor(as.matrix(resAll$egoChoice))
 
 ##Check for any "holes" in the design
 #with(resAll, table(Exp, offset, axis, perspectivePreference))
 #str(resAll)
-
-#make sure DVs are of the right type
-resAll$egoChoice = as.factor(as.matrix(resAll$egoChoice))
-resAll$RTDV = as.numeric(as.matrix(resAll$RTDV))
-resAll$totalDistanceDV = as.numeric(as.matrix(resAll$totalDistanceDV))
-resAll$xFlipDV = as.integer(as.matrix(resAll$xFlipDV))
 
 #Center time/trial
 resAll$centered_trial =scale(resAll$trial)
 
 ```
 
-## Egocentric Choice models (Ambiguous/Critical trials)
-
-For the model with egocentric perspective choice as dependent variable (egoChoice), the fixed factors include the orientation of the folders (Exp), the speaker’s offset (offset: 180° vs. 90°; within-subjects), instruction's axis (axis: on a sagittal axis: front-back vs. a lateral axis: left-right; within-subjects), and their interactions. Given that the perspective choice as a dependent variable is a binary variable, we use a logistic regression model (Jaeger, 2008), specifying a "binomial" distribution.
+Step 1: Let's set up the contrast structure for each factor of interest (axis, preference, offset)
 
 ```{r}
-ChoiceModel1 = glmer(egoChoice ~ Exp*offset*axis 
-                    + (1 | fl),
-                    #+ (0 + offset | fl),
-                    #+ (0 + axis | fl),
-                    #+ (0 + offset:axis | fl), #did not converge
-                    data=resAll,
-                    family = "binomial",
-                    nAGQ = 1, 
-                    REML = FALSE)
-summary(ChoiceModel1)
 
-#This model does not converge and is not reported in the manuscript
-#ChoiceModel_time = glmer(egoChoice ~ Exp*offset*axis+ Exp*centered_trial 
-                     #+ (1 | fl),
-                     #+ (0 + offset | fl),
-                     #+ (0 + axis | fl),
-                     #+ (0 + offset:axis | fl), #did not converge
-                     #data=resAll,
-                     #family = "binomial",
-                     # method = "Laplace",
-                     #nAGQ = 1, 
-                     #REML = FALSE)
-#summary(ChoiceModel_time)
+resAll.cont <- within(resAll, {
+  
+  # Factor 1: instruction type 
+  axis.latVsag <- ifelse( axis=="lateral", 1/2, 
+                          ifelse( axis=="sagittal", -1/2, NA ) ) 
+  
+  # Factor 2: Perspective preference
+  PP.othVego <- ifelse( perspectivePreference=="other", 1/2,
+                        ifelse( perspectivePreference=="mixed", 0,
+                                ifelse( perspectivePreference=="ego", -1/2, NA )))
+  
+  PP.mixVego <- ifelse( perspectivePreference=="other", 0,
+                        ifelse( perspectivePreference=="mixed", 1/2,
+                                ifelse( perspectivePreference=="ego", -1/2, NA )))    
+  
+  # Factor 3: Orientation of folders
+  orient.otherVego <- ifelse( Exp=="2B", 1/2, 
+                               ifelse( Exp=="2A", -1/2, NA ) ) 
+  
+  # Factor 4: Speaker position (offset)
+  
+  offset.180v90 <- ifelse( offset=="180", 1/2, 
+                              ifelse( offset=="90", -1/2, NA ) )  
+  
+  })
+  
 
 ```
 
-## Response Time models (Ambiguous/Critical trials)
-
-For the models for response time (RTDV) and the other dependent measures (totalDistanceDV, xFlipDV), below, in addition to the fixed effects used in the egocentric choice model, we include perspective preference as a fixed effect (perspectivePreference: egocentric, other-centric, vs. mixed responder types; between-subjects), along with its interaction with the other factors.
+Step 2: let's build the omnibus model for each DV with all effects of interest for research questions
 
 ```{r}
-RTModel = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis 
-                + (1 | fl)
-                + (0 + offset | fl)
-                + (0 + axis | fl),
-                #+ (0 + offset:axis | fl), #did not converge
-                data=resAll, 
-                #control = glmerControl(optimizer = 'bobyqa'),
-                REML=FALSE)
-print('RT:'); pander(print_stats(RTModel))
 
-# Check residuals (before and after log transform)
-# There is deviation from normality and homoscedasticity, so use log(RT)
-#plot(density(resid(RTModel))) #does this look approximately normal?
-#qqnorm(resid(RTModel)) #check if they fall on a straight line
-#qqline(resid(RTModel)) #check departure from line
+## Response time ##
 
-#### Investigation of stabilization across trials ####
+RTModel.omni <- lmer( log(RTDV) ~ (1 | fl) 
+                      + (0 + offset.180v90 | fl) 
+                      + (0 + axis.latVsag | fl) 
+                      + (0 + (axis.latVsag:offset.180v90) | fl) 
+                      + orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                      data=resAll.cont, REML=FALSE )
+summary(RTModel.omni)
+print('RT:'); pander(print_stats(RTModel.omni))
 
-RTModel1_time = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis+Exp*centered_trial
-                    + (1 | fl)
-                    + (0 + offset | fl)
-                    + (0 + axis | fl),
-                    #+ (0 + centered_trial | fl),
-                    #+ (0 + offset:axis | fl), 
-                    data=resAll, 
-                    REML=FALSE)
-print('RT:'); pander(print_stats(RTModel1_time))
+## Distance ##
+
+DistanceModel.omni <- lmer( log(totalDistanceDV) ~ (1 | fl) 
+                      + (0 + offset.180v90 | fl) 
+                      + (0 + axis.latVsag | fl) 
+                      + (0 + (axis.latVsag:offset.180v90) | fl)
+                      + orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                      data=resAll.cont, REML=FALSE )
+summary(DistanceModel.omni)
+print('Distance:'); pander(print_stats(DistanceModel.omni))
+
+
+## Directional Shifts ##
+
+xFlipModel.omni <- lmer( xFlipDV ~ (1 | fl) 
+                            + (0 + offset.180v90 | fl) 
+                            + (0 + axis.latVsag | fl) 
+                            + (0 + (axis.latVsag:offset.180v90) | fl)
+                            + orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),  
+                            #family = "poisson",
+                            data=resAll.cont, REML=FALSE )
+summary(xFlipModel.omni) 
+print('Directional Shifts:'); pander(print_stats(xFlipModel.omni))
+
+
+# Egocentric Choice models
+
+ChoiceModel.omni <- glmer(egoChoice ~ (1 | fl)
+                          #+ (0 + offset.180v90 | fl) 
+                          #+ (0 + axis.latVsag | fl) 
+                          #+ (0 + (axis.latVsag:offset.180v90) | fl)
+                          + orient.otherVego * offset.180v90 * axis.latVsag, 
+                          data=resAll.cont,
+                          family = "binomial",
+                          # method = "Laplace",
+                          nAGQ = 1, #due to warning message, model converges with this
+                          REML = FALSE)
+summary(ChoiceModel.omni)
 
 ```
 
-## Total Distance models (Ambiguous/Critical trials)
+Step 3: Get the effect sizes of omnibus based on the MuMIn package - designed for mixed effects models
 
 ```{r}
+#changing the format of the random effect structure to overcome issues with the MuMIn package
+RTModel.omni <- lmer( log(RTDV) ~ (1 + offset.180v90 + axis.latVsag + (axis.latVsag:offset.180v90) | fl) 
+                      + orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                      data=resAll.cont, REML=FALSE )
+r.squaredGLMM(RTModel.omni)[1]
+r.squaredGLMM(RTModel.omni)[2]
 
-DistanceModel = lmer(log(totalDistanceDV) ~ Exp*perspectivePreference*offset*axis 
-                      + (1 | fl) 
-                      + (0 + offset | fl)
-                      + (0 + axis | fl)
-                      + (0 + offset:axis | fl),
-                      #+ (0 + offset:axis | fl), #did not converge
-                      data=resAll, 
-                      REML=FALSE) 
-print('Total Distance:'); pander(print_stats(DistanceModel))
+#alternative computation of R-squared from Xu (2003)
+r.sqrt=1-var(residuals(RTModel.omni))/(var(model.response(model.frame(RTModel.omni))))
 
-# Check residuals (before and after log transform)
-# There is deviation from normality and homoscedasticity, so use log(RT)
-#plot(density(resid(DistanceModel))) #does this look approximately normal?
-#qqnorm(resid(DistanceModel)) #check if they fall on a straight line
-#qqline(resid(DistanceModel)) #check departure from line
+#changing the format of the random effect structure to overcome issues with the MuMIn package
+DistanceModel.omni <- lmer( log(totalDistanceDV) ~ (1 + offset.180v90 + axis.latVsag + (axis.latVsag:offset.180v90) | fl) 
+                            + orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                            data=resAll.cont, REML=FALSE )
+r.squaredGLMM(DistanceModel.omni)[1]
+r.squaredGLMM(DistanceModel.omni)[2]
 
-#### Investigation of stabilization across trials ####
+#changing the format of the random effect structure to overcome issues with the MuMIn package
+xFlipModel.omni <- lmer( xFlipDV ~ (1 + offset.180v90 +axis.latVsag + (axis.latVsag:offset.180v90) | fl) 
+                         + orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),  
+                         #family = "poisson",
+                         data=resAll.cont, REML=FALSE )
 
-DistanceModel_time = lmer(log(totalDistanceDV) ~ Exp*perspectivePreference*offset*axis+Exp*centered_trial
-                    + (1 | fl)
-                    + (0 + offset | fl)
-                    + (0 + axis | fl),
-                    #+ (0 + centered_trial | fl),
-                    #+ (0 + offset:axis | fl), 
-                    data=resAll, 
-                    REML=FALSE)
-print('Total Distance:'); pander(print_stats(DistanceModel_time))
+r.squaredGLMM(xFlipModel.omni)[1]
+r.squaredGLMM(xFlipModel.omni)[2]
+
+#Choice model only has random intercept in random effect structure; no changes needed
+r.squaredGLMM(ChoiceModel.omni)[1]
+r.squaredGLMM(ChoiceModel.omni)[2] #even though the model converges when ran, I'm getting warnings here
 
 ```
 
-## Directional Shifts models (Ambiguous/Critical trials)
+STEP 4a: In order to interpret the individual coefficients of the 2-way and 3-way interactions, we need to first establish that the overall interactions are statisticall significant
+## Note: Testing the 2-way interaction between perspectivePreference and config
 
 ```{r}
-xFlipsModel = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis 
-                    + (1 | fl)
-                    + (0 + offset | fl)
-                    + (0 + axis | fl)
-                    + (0 + offset:axis | fl), 
-                    data=resAll,
-                    REML=FALSE)
-print('Directional Shifts:'); pander(print_stats(xFlipsModel))
 
-#### Investigation of stabilization across trials ####
+#This function cleans up the output of the likelihood-ratio tests
+modComp = function(model1,model2,modname){
+  
+  llcomp = anova(model1,model2)
+  df1 = llcomp$"Chi Df"[2]
+  chi1 = llcomp$"Chisq"[2]
+  pr1 = llcomp$"Pr(>Chisq)"[2]
+  
+  test1 = data.frame(c(df1,chi1,pr1))
+  colnames(test1) = modname
+  rownames(test1) = c("df","chi","p")
+  return(test1)
+}
 
-xFlipsModel_time = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis+Exp*centered_trial
-                          + (1 | fl)
-                          + (0 + offset | fl)
-                          + (0 + axis | fl),
-                          #+ (0 + centered_trial | fl),
-                          #+ (0 + offset:axis | fl), 
-                          data=resAll, 
-                          REML=FALSE)
-print('Directional Shifts:'); pander(print_stats(xFlipsModel_time))
+## Note: what this does below is remove the critical 2-way interaction coefficients from the omnibus and then compares to the omni with likelihood ratio test
+
+#1 Orientation x Perspective Preference 
+twoway.RTModel.OrientvsPP = update(RTModel.omni,.~.-PP.othVego:orient.otherVego
+                                   -PP.mixVego:orient.otherVego)
+modComp(RTModel.omni,twoway.RTModel.OrientvsPP,"twoway.RTModel.OrientvsPP")
+
+twoway.DistanceModel.OrientvsPP = update(DistanceModel.omni,.~.-PP.othVego:orient.otherVego
+                                   -PP.mixVego:orient.otherVego)
+modComp(DistanceModel.omni,twoway.DistanceModel.OrientvsPP,"twoway.DistanceModel.OrientvsPP")
+
+twoway.xFlipModel.OrientvsPP = update(xFlipModel.omni,.~.-PP.othVego:orient.otherVego
+                                         -PP.mixVego:orient.otherVego)
+modComp(xFlipModel.omni,twoway.xFlipModel.OrientvsPP,"twoway.xFlipModel.OrientvsPP")
+
+#2 Orientation x Offset
+twoway.RTModel.OrientvsOffset = update(RTModel.omni,.~.-orient.otherVego:offset.180v90)
+modComp(RTModel.omni,twoway.RTModel.OrientvsOffset,"twoway.RTModel.OrientvsOffset")
+
+twoway.DistanceModel.OrientvsOffset = update(DistanceModel.omni,.~.-orient.otherVego:offset.180v90)
+modComp(DistanceModel.omni,twoway.DistanceModel.OrientvsOffset,"twoway.DistanceModel.OrientvsOffset")
+
+twoway.xFlipModel.OrientvsOffset = update(xFlipModel.omni,.~.-orient.otherVego:offset.180v90)
+modComp(xFlipModel.omni,twoway.xFlipModel.OrientvsOffset,"twoway.xFlipModel.OrientvsOffset")
+
+twoway.ChoiceModel.OrientvsOffset = update(ChoiceModel.omni,.~.-orient.otherVego:offset.180v90)
+modComp(ChoiceModel.omni,twoway.ChoiceModel.OrientvsOffset,"twoway.ChoiceModel.OrientvsOffset")
+
+#3 Orientation x Axis (instruction type)
+twoway.RTModel.OrientvsAxis = update(RTModel.omni,.~.-orient.otherVego:axis.latVsag)
+modComp(RTModel.omni,twoway.RTModel.OrientvsAxis,"twoway.RTModel.OrientvsAxis")
+
+twoway.DistanceModel.OrientvsAxis = update(DistanceModel.omni,.~.-orient.otherVego:axis.latVsag)
+modComp(DistanceModel.omni,twoway.DistanceModel.OrientvsAxis,"twoway.DistanceModel.OrientvsAxis")
+
+twoway.xFlipModel.OrientvsAxis = update(xFlipModel.omni,.~.-orient.otherVego:axis.latVsag)
+modComp(xFlipModel.omni,twoway.xFlipModel.OrientvsAxis,"twoway.xFlipModel.OrientvsAxis")
+
+twoway.ChoiceModel.OrientvsAxis = update(ChoiceModel.omni,.~.-orient.otherVego:axis.latVsag)
+modComp(ChoiceModel.omni,twoway.ChoiceModel.OrientvsAxis,"twoway.ChoiceModel.OrientvsAxis")
+
+#4 Preference x Axis (instruction type)
+twoway.RTModel.PPvsAxis = update(RTModel.omni,.~.-PP.othVego:axis.latVsag
+                                   -PP.mixVego:axis.latVsag)
+modComp(RTModel.omni,twoway.RTModel.PPvsAxis,"twoway.RTModel.PPvsAxis")
+
+twoway.DistanceModel.PPvsAxis = update(DistanceModel.omni,.~.-PP.othVego:axis.latVsag
+                                 -PP.mixVego:axis.latVsag)
+modComp(DistanceModel.omni,twoway.DistanceModel.PPvsAxis,"twoway.DistanceModel.PPvsAxis")
+
+twoway.xFlipModel.PPvsAxis = update(xFlipModel.omni,.~.-PP.othVego:axis.latVsag
+                                       -PP.mixVego:axis.latVsag)
+modComp(xFlipModel.omni,twoway.xFlipModel.PPvsAxis,"twoway.xFlipModel.PPvsAxis")
+
+#5 Preference x Offset
+twoway.RTModel.PPvsOffset = update(RTModel.omni,.~.-PP.othVego:offset.180v90
+                                 -PP.mixVego:offset.180v90)
+modComp(RTModel.omni,twoway.RTModel.PPvsOffset,"twoway.RTModel.PPvsOffset")
+
+twoway.DistanceModel.PPvsOffset = update(DistanceModel.omni,.~.-PP.othVego:offset.180v90
+                                   -PP.mixVego:offset.180v90)
+modComp(DistanceModel.omni,twoway.DistanceModel.PPvsOffset,"twoway.DistanceModel.PPvsOffset")
+
+twoway.xFlipModel.PPvsOffset = update(xFlipModel.omni,.~.-PP.othVego:offset.180v90
+                                         -PP.mixVego:offset.180v90)
+modComp(xFlipModel.omni,twoway.xFlipModel.PPvsOffset,"twoway.xFlipModel.PPvsOffset")
+
+#6 Axis x Offset
+twoway.RTModel.AxisvsOffset = update(RTModel.omni,.~.-axis.latVsag:offset.180v90)
+modComp(RTModel.omni,twoway.RTModel.AxisvsOffset,"twoway.RTModel.AxisvsOffset")
+
+twoway.DistanceModel.AxisvsOffset = update(DistanceModel.omni,.~.-axis.latVsag:offset.180v90)
+modComp(DistanceModel.omni,twoway.DistanceModel.AxisvsOffset,"twoway.DistanceModel.AxisvsOffset")
+
+twoway.xFlipModel.AxisvsOffset = update(xFlipModel.omni,.~.-axis.latVsag:offset.180v90)
+modComp(xFlipModel.omni,twoway.xFlipModel.AxisvsOffset,"twoway.xFlipModel.AxisvsOffset")
+
+twoway.ChoiceModel.AxisvsOffset = update(ChoiceModel.omni,.~.-axis.latVsag:offset.180v90)
+modComp(ChoiceModel.omni,twoway.ChoiceModel.AxisvsOffset,"twoway.ChoiceModel.AxisvsOffset")
 
 ```
 
-## Linear mixed effects models for control trials
+STEP 4b: In order to interpret the individual coefficients of the 2-way interactions, we need to first establish that the overall 3-way interactions are statisticall significant
+## Testing the 3-way interaction between perspectivePreference, folder orientation, speaker position, and axis
 
-We created separate linear mixed effects models for each of the dependent variables (proportion of errors, response time, total Distance, x-flips) on controls trials, combining the data from Experiment 1a and 1b. These models are reported in Appendix A in the manuscript.
+```{r}
+#1
+threeway.RTModel.OrientvsAxisvsOffset = update(RTModel.omni,.~.-axis.latVsag:orient.otherVego:offset.180v90)
+modComp(RTModel.omni,threeway.RTModel.OrientvsAxisvsOffset,"threeway.RTModel_1")
 
-We start with some pre-processing of the variables, setting the reference categories where relevant, and inspecting the data structure.
+threeway.DistanceModel.OrientvsAxisvsOffset = update(DistanceModel.omni,.~.-axis.latVsag:orient.otherVego:offset.180v90)
+modComp(DistanceModel.omni,threeway.DistanceModel.OrientvsAxisvsOffset,"threeway.DistanceModel_1")
+
+threeway.xFlipModel.OrientvsAxisvsOffset = update(xFlipModel.omni,.~.-axis.latVsag:orient.otherVego:offset.180v90)
+modComp(xFlipModel.omni,threeway.xFlipModel.OrientvsAxisvsOffset,"threeway.xFlipModel_1")
+
+threeway.ChoiceModel.OrientvsAxisvsOffset = update(ChoiceModel.omni,.~.-axis.latVsag:orient.otherVego:offset.180v90)
+modComp(ChoiceModel.omni,threeway.ChoiceModel.OrientvsAxisvsOffset,"threeway.ChoiceModel_1")
+
+#2
+threeway.RTModel.OrientvsAxisvsPP = update(RTModel.omni,.~.-axis.latVsag:PP.othVego:orient.otherVego
+                                           -axis.latVsag:PP.mixVego:orient.otherVego)
+modComp(RTModel.omni,threeway.RTModel.OrientvsAxisvsPP,"threeway.RTModel_2")
+
+threeway.DistanceModel.OrientvsAxisvsPP = update(DistanceModel.omni,.~.-axis.latVsag:PP.othVego:orient.otherVego
+                                           -axis.latVsag:PP.mixVego:orient.otherVego)
+modComp(DistanceModel.omni,threeway.DistanceModel.OrientvsAxisvsPP,"threeway.DistanceModel_2")
+
+threeway.xFlipModel.OrientvsAxisvsPP = update(xFlipModel.omni,.~.-axis.latVsag:PP.othVego:orient.otherVego
+                                                 -axis.latVsag:PP.mixVego:orient.otherVego)
+modComp(xFlipModel.omni,threeway.xFlipModel.OrientvsAxisvsPP,"threeway.xFlipModel_2")
+
+#3
+threeway.RTModel.AxisvsPPvsOffset = update(RTModel.omni,.~.-axis.latVsag:PP.othVego:offset.180v90
+                         -axis.latVsag:PP.mixVego:offset.180v90)
+modComp(RTModel.omni,threeway.RTModel.AxisvsPPvsOffset,"threeway.RTModel_3")
+
+threeway.DistanceModel.AxisvsPPvsOffset = update(DistanceModel.omni,.~.-axis.latVsag:PP.othVego:offset.180v90
+                                                 -axis.latVsag:PP.mixVego:offset.180v90)
+modComp(DistanceModel.omni,threeway.DistanceModel.AxisvsPPvsOffset,"threeway.DistanceModel_3")
+
+threeway.xFlipModel.AxisvsPPvsOffset = update(xFlipModel.omni,.~.-axis.latVsag:PP.othVego:offset.180v90
+                                                 -axis.latVsag:PP.mixVego:offset.180v90)
+modComp(xFlipModel.omni,threeway.xFlipModel.AxisvsPPvsOffset,"threeway.xFlipModel_3")
+
+#4
+threeway.RTModel.PPvsOrientvsOffset = update(RTModel.omni,.~.-PP.othVego:orient.otherVego:offset.180v90
+                                             -PP.mixVego:orient.otherVego:offset.180v90)
+modComp(RTModel.omni,threeway.RTModel.PPvsOrientvsOffset,"threeway.RTModel_4")
+
+threeway.DistanceModel.PPvsOrientvsOffset = update(DistanceModel.omni,.~.-PP.othVego:orient.otherVego:offset.180v90
+                                             -PP.mixVego:orient.otherVego:offset.180v90)
+modComp(DistanceModel.omni,threeway.DistanceModel.PPvsOrientvsOffset,"threeway.DistanceModel_4")
+
+threeway.xFlipModel.PPvsOrientvsOffset = update(xFlipModel.omni,.~.-PP.othVego:orient.otherVego:offset.180v90
+                                                   -PP.mixVego:orient.otherVego:offset.180v90)
+modComp(xFlipModel.omni,threeway.xFlipModel.PPvsOrientvsOffset,"threeway.xFlipModel_4")
+
+```
+
+STEP 4c: In order to interpret the individual coefficients of the 2-way and 3-way interactions, we need to first establish that the overall interactions are statisticall significant
+## Testing the 4-way interaction between perspectivePreference, folder orientation, speaker position, and axis
 
 ```{r}
 
+
+fourway.RTModel = update(RTModel.omni,.~.-axis.latVsag:PP.othVego:orient.otherVego:offset.180v90
+                         -axis.latVsag:PP.othVego:orient.otherVego:offset.180v90
+                         -axis.latVsag:PP.mixVego:orient.otherVego:offset.180v90
+                         -axis.latVsag:PP.mixVego:orient.otherVego:offset.180v90)
+modComp(RTModel.omni,fourway.RTModel,"fourway.RTModel")
+
+
+fourway.DistanceModel = update(DistanceModel.omni,.~.-axis.latVsag:PP.othVego:orient.otherVego:offset.180v90
+                         -axis.latVsag:PP.othVego:orient.otherVego:offset.180v90
+                         -axis.latVsag:PP.mixVego:orient.otherVego:offset.180v90
+                         -axis.latVsag:PP.mixVego:orient.otherVego:offset.180v90)
+modComp(DistanceModel.omni,fourway.DistanceModel,"fourway.DistanceModel")
+
+fourway.xFlipModel = update(xFlipModel.omni,.~.-axis.latVsag:PP.othVego:orient.otherVego:offset.180v90
+                               -axis.latVsag:PP.othVego:orient.otherVego:offset.180v90
+                               -axis.latVsag:PP.mixVego:orient.otherVego:offset.180v90
+                               -axis.latVsag:PP.mixVego:orient.otherVego:offset.180v90)
+modComp(xFlipModel.omni,fourway.xFlipModel,"fourway.xFlipModel")
+
+```
+
+STEP 5: We have an overall significant 3-way interaction, between perspective preference, folder orientation, and axis, so we need to decompose holding each level of axis constant and rerun. This is a simple effects follow-up of the 3-way interaction.
+
+# Important note: We need to pay attention to effects in the following models that do NOT interact with the dummy codes (axis.lat and axis.sag) (i.e., ignore any fixed effect that includes "axis.lat" or "axis.sag," whether it is an interaction or main effect)"
+
+```{r}
+
+
+resAll.cont <- within(resAll.cont, {
+  
+  axis.lat <- ifelse( axis=="lateral", 0, 
+                      ifelse( axis=="sagittal", 1, NA ) ) 
+  
+  axis.sag <- ifelse( axis=="lateral", 1, 
+                      ifelse( axis=="sagittal", 0, NA ) ) 
+} )
+
+#######
+##// Axis: Lateral
+#######
+
+lat.omni.RT <- lmer( log(RTDV) ~ (1 | fl) 
+                      + (0 + axis.lat | fl) 
+                      + (0 + offset.180v90 | fl)
+                      + (0 + axis.lat:offset.180v90 | fl)
+                      + orient.otherVego * axis.lat * offset.180v90 * (PP.othVego + PP.mixVego),        
+                      data=resAll.cont, REML=FALSE )
+summary(lat.omni.RT) 
+
+lat.omni.Distance <- lmer( log(totalDistanceDV) ~ (1 | fl) 
+                     + (0 + axis.lat | fl) 
+                     + (0 + offset.180v90 | fl)
+                     + (0 + axis.lat:offset.180v90 | fl)
+                     + orient.otherVego * axis.lat * offset.180v90 * (PP.othVego + PP.mixVego),        
+                     data=resAll.cont, REML=FALSE )
+summary(lat.omni.Distance) 
+
+lat.omni.xFlip <- lmer( xFlipDV ~ (1 | fl) 
+                           + (0 + axis.lat | fl) 
+                           + (0 + offset.180v90 | fl)
+                           + (0 + axis.lat:offset.180v90 | fl)
+                           + orient.otherVego * axis.lat * offset.180v90 * (PP.othVego + PP.mixVego),        
+                           data=resAll.cont, REML=FALSE )
+summary(lat.omni.xFlip) 
+
+
+##// test for two-way interaction of perspectivePreference and orientation in order to follow-up
+lat.RT = update( lat.omni.RT, .~.-PP.othVego:orient.otherVego
+                 -PP.mixVego:orient.otherVego)
+modComp(lat.omni.RT,lat.RT,"lat.omnibus.RT")
+
+lat.Distance = update( lat.omni.Distance, .~.-PP.othVego:orient.otherVego
+                 -PP.mixVego:orient.otherVego)
+modComp(lat.omni.Distance,lat.Distance,"lat.omnibus.Distance")
+
+lat.xFlip = update( lat.omni.xFlip, .~.-PP.othVego:orient.otherVego
+                       -PP.mixVego:orient.otherVego)
+modComp(lat.omni.xFlip,lat.xFlip,"lat.omnibus.xFlip")
+# p = .08
+
+#######
+##// Axis: Sagittal
+#######
+
+sag.omni.RT <- lmer( log(RTDV) ~ (1 | fl) 
+                     + (0 + axis.sag | fl) 
+                     + (0 + offset.180v90 | fl)
+                     + (0 + axis.sag:offset.180v90 | fl)
+                     + orient.otherVego * axis.sag * offset.180v90 * (PP.othVego + PP.mixVego),        
+                     data=resAll.cont, REML=FALSE )
+summary(sag.omni.RT) 
+
+sag.omni.Distance <- lmer( log(totalDistanceDV) ~ (1 | fl) 
+                     + (0 + axis.sag | fl) 
+                     + (0 + offset.180v90 | fl)
+                     + (0 + axis.sag:offset.180v90 | fl)
+                     + orient.otherVego * axis.sag * offset.180v90 * (PP.othVego + PP.mixVego),        
+                     data=resAll.cont, REML=FALSE )
+summary(sag.omni.Distance) 
+
+sag.omni.xFlip <- lmer( xFlipDV ~ (1 | fl) 
+                           + (0 + axis.sag | fl) 
+                           + (0 + offset.180v90 | fl)
+                           + (0 + axis.sag:offset.180v90 | fl)
+                           + orient.otherVego * axis.sag * offset.180v90 * (PP.othVego + PP.mixVego),        
+                           data=resAll.cont, REML=FALSE )
+summary(sag.omni.xFlip)
+
+##// test for two-way interaction of perspectivePreference and orientation in order to follow-up
+sag.RT = update( sag.omni.RT, .~.-PP.othVego:orient.otherVego
+                 -PP.mixVego:orient.otherVego)
+modComp(sag.omni.RT,sag.RT,"sag.omnibus.RT")
+
+sag.Distance = update( sag.omni.Distance, .~.-PP.othVego:orient.otherVego
+                 -PP.mixVego:orient.otherVego)
+modComp(sag.omni.Distance,sag.Distance,"sag.omnibus.Distance")
+
+sag.xFlip = update( sag.omni.xFlip, .~.-PP.othVego:orient.otherVego
+                       -PP.mixVego:orient.otherVego)
+modComp(sag.omni.xFlip,sag.xFlip,"sag.omnibus.xFlip")
+# p = .07
+
+```
+
+##### Now let's examine the effect of trial ##### 
+
+```{r}
+
+resAll.cont$centered_trial =scale(resAll.cont$trial)
+
+
+
+## Response time ##
+
+RTModel.time <- lmer( log(RTDV) ~ (1 | fl) 
+                      + (0 + offset.180v90 | fl) 
+                      + (0 + axis.latVsag | fl) 
+                      + (0 + centered_trial | fl) 
+                      + (0 + (axis.latVsag:offset.180v90) | fl) 
+                      + centered_trial * orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                      data=resAll.cont, REML=FALSE )
+summary(RTModel.time) 
+
+
+## Distance ##
+
+DistanceModel.time <- lmer( log(totalDistanceDV) ~ (1 | fl) 
+                            + (0 + offset.180v90 | fl) 
+                            + (0 + axis.latVsag | fl) 
+                            + (0 + centered_trial | fl) 
+                            + (0 + (axis.latVsag:offset.180v90) | fl)
+                            + centered_trial * orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                            data=resAll.cont, REML=FALSE )
+summary(DistanceModel.time) 
+
+
+## Directional Shifts ##
+
+xFlipModel.time <- lmer( xFlipDV ~ (1 | fl) 
+                         + (0 + offset.180v90 | fl) 
+                         + (0 + axis.latVsag | fl) 
+                         + (0 + centered_trial | fl)
+                         + (0 + (axis.latVsag:offset.180v90) | fl)
+                         + centered_trial * orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),  
+                         #family = "poisson",
+                         data=resAll.cont, REML=FALSE )
+summary(xFlipModel.time) 
+
+
+# Egocentric Choice models
+
+ChoiceModel.time <- glmer(egoChoice ~ (1 | fl)
+                          #+ (0 + offset.180v90 | fl) 
+                          #+ (0 + axis.latVsag | fl) 
+                          #+ (0 + (axis.latVsag:offset.180v90) | fl)
+                          #+ (0 + centered_trial | fl)
+                          + centered_trial * orient.otherVego * offset.180v90 * axis.latVsag, 
+                          data=resAll.cont,
+                          family = "binomial",
+                          # method = "Laplace",
+                          nAGQ = 1, #due to warning message, model converges with this
+                          REML = FALSE)
+summary(ChoiceModel.time)
+
+```
+
+##### Follow-up analyses excluding mixed responders (reported in Appendix B) ######
+
+```{r}
+
+resAll_NoMixed = subset(resAll, resAll$perspectivePreference %in% c('ego','other'))
+
+resAll_NoMixed <- within(resAll_NoMixed, {
+  
+  # Factor 1: instruction type 
+  axis.latVsag <- ifelse( axis=="lateral", 1/2, 
+                          ifelse( axis=="sagittal", -1/2, NA ) ) 
+  
+  # Factor 2: Perspective preference
+  PP.othVego <- ifelse( perspectivePreference=="other", 1/2,
+                        ifelse( perspectivePreference=="ego", -1/2, NA ))
+  
+  # Factor 3: Orientation of folders
+  orient.otherVego <- ifelse( Exp=="2B", 1/2, 
+                              ifelse( Exp=="2A", -1/2, NA ) ) 
+  
+  # Factor 4: Speaker position (offset)
+  
+  offset.180v90 <- ifelse( offset=="180", 1/2, 
+                           ifelse( offset=="90", -1/2, NA ) )  
+  
+})
+
+
+RTModel_NoMixed.omni <- lmer( log(RTDV) ~ (1 | fl) 
+                      + (0 + offset.180v90 | fl) 
+                      + (0 + axis.latVsag | fl) 
+                      + (0 + (axis.latVsag:offset.180v90) | fl) 
+                      + orient.otherVego * offset.180v90 * axis.latVsag * PP.othVego,        
+                      data=resAll_NoMixed, REML=FALSE )
+summary(RTModel_NoMixed.omni) 
+
+
+#checking if this overall 3-way interaction is significant, as it is as a predictor in the omnbibus
+threeway.RTModel_NoMixed.OrientvsAxisvsPP = update(RTModel_NoMixed.omni,.~.-axis.latVsag:PP.othVego:orient.otherVego)
+modComp(RTModel_NoMixed.omni,threeway.RTModel_NoMixed.OrientvsAxisvsPP,"threeway.RTModel_2")
+
+#Let's do the simple effects follow up for lateral and sagital models
+resAll_NoMixed <- within(resAll_NoMixed, {
+  
+  axis.lat <- ifelse( axis=="lateral", 0, 
+                      ifelse( axis=="sagittal", 1, NA ) ) 
+  
+  axis.sag <- ifelse( axis=="lateral", 1, 
+                      ifelse( axis=="sagittal", 0, NA ) ) 
+} )
+
+
+lat.NoMixed.omni.RT <- lmer( log(RTDV) ~ (1 | fl) 
+                             + (0 + axis.lat | fl) 
+                             + (0 + offset.180v90 | fl)
+                             + (0 + axis.lat:offset.180v90 | fl)
+                             + orient.otherVego * axis.lat * offset.180v90 * PP.othVego,        
+                             data=resAll_NoMixed, REML=FALSE )
+summary(lat.NoMixed.omni.RT) 
+
+
+sag.NoMixed.omni.RT <- lmer( log(RTDV) ~ (1 | fl) 
+                     + (0 + axis.sag | fl) 
+                     + (0 + offset.180v90 | fl)
+                     + (0 + axis.sag:offset.180v90 | fl)
+                     + orient.otherVego * axis.sag * offset.180v90 * PP.othVego,        
+                     data=resAll_NoMixed, REML=FALSE )
+summary(sag.NoMixed.omni.RT) 
+
+##// test for two-way interaction of perspectivePreference and orientation in order to follow-up
+lat.NoMixed.RT = update( lat.NoMixed.omni.RT, .~.-PP.othVego:orient.otherVego)
+modComp(lat.NoMixed.omni.RT,lat.NoMixed.RT,"sag.omnibus.RT")
+# p = .17
+
+sag.NoMixed.RT = update( sag.NoMixed.omni.RT, .~.-PP.othVego:orient.otherVego)
+modComp(sag.NoMixed.omni.RT,sag.NoMixed.RT,"sag.omnibus.RT")
+# p = .93
+
+# Distance model 
+
+DistanceModel_NoMixed.omni <- lmer( log(totalDistanceDV) ~ (1 | fl) 
+                              + (0 + offset.180v90 | fl) 
+                              + (0 + axis.latVsag | fl) 
+                              + (0 + (axis.latVsag:offset.180v90) | fl) 
+                              + orient.otherVego * offset.180v90 * axis.latVsag * PP.othVego,        
+                              data=resAll_NoMixed, REML=FALSE )
+summary(DistanceModel_NoMixed.omni) 
+
+# Directional shifts
+
+xFlipModel_NoMixed.omni <- lmer( xFlipDV ~ (1 | fl) 
+                                    + (0 + offset.180v90 | fl) 
+                                    + (0 + axis.latVsag | fl) 
+                                    + (0 + (axis.latVsag:offset.180v90) | fl) 
+                                    + orient.otherVego * offset.180v90 * axis.latVsag * PP.othVego,  
+                                    #family = "poisson",
+                                    data=resAll_NoMixed, REML=FALSE )
+summary(xFlipModel_NoMixed.omni) 
+
+# Egocentric choice models
+
+ChoiceModel_NoMixed.omni <- glmer(egoChoice ~ (1 | fl)
+                          #+ (0 + offset.180v90 | fl) 
+                          #+ (0 + axis.latVsag | fl) 
+                          #+ (0 + (axis.latVsag:offset.180v90) | fl)
+                          +  orient.otherVego * offset.180v90 * axis.latVsag, 
+                          data=resAll_NoMixed,
+                          family = "binomial",
+                          # method = "Laplace",
+                          nAGQ = 1, #due to warning message, model converges with this
+                          REML = FALSE)
+summary(ChoiceModel_NoMixed.omni)
+
+
+##Effect sizes
+RTModel_NoMixed.omni <- lmer( log(RTDV) ~ (1 + offset.180v90 + axis.latVsag + (axis.latVsag:offset.180v90)| fl) 
+                              + orient.otherVego * offset.180v90 * axis.latVsag * PP.othVego,        
+                              data=resAll_NoMixed, REML=FALSE )
+
+r.squaredGLMM(RTModel_NoMixed.omni)[2]
+
+
+DistanceModel_NoMixed.omni <- lmer( log(totalDistanceDV) ~ (1 + offset.180v90 + axis.latVsag + (axis.latVsag:offset.180v90) | fl) 
+                                    + orient.otherVego * offset.180v90 * axis.latVsag * PP.othVego,        
+                                    data=resAll_NoMixed, REML=FALSE )
+r.squaredGLMM(DistanceModel_NoMixed.omni)[2]
+
+
+xFlipModel_NoMixed.omni <- lmer( xFlipDV ~ (1 + offset.180v90 + axis.latVsag + (axis.latVsag:offset.180v90) | fl) 
+                                 + orient.otherVego * offset.180v90 * axis.latVsag * PP.othVego,  
+                                 #family = "poisson",
+                                 data=resAll_NoMixed, REML=FALSE )
+r.squaredGLMM(xFlipModel_NoMixed.omni)[2]
+
+r.squaredGLMM(ChoiceModel_NoMixed.omni)[2] 
+
+```
+
+##### LMERS FOR CONTROL TRIALS (reported in Appendix A) #####
+
+Preliminaries
+
+```{r}
 resAllError = as.data.frame(as.matrix(resAllError))
 #Defining as factors in order to set reference categories next
 resAllError$Exp = as.factor(as.matrix(resAllError$Exp))
@@ -449,12 +973,12 @@ resAllError$offset = as.factor(as.matrix(resAllError$offset))
 resAllError$axis = as.factor(as.matrix(resAllError$axis))
 resAllError$perspectivePreference = as.factor(as.matrix(resAllError$perspectivePreference))
 
-#Setting reference categories
-resAllError$perspectivePreference= relevel(resAllError$perspectivePreference, ref = "ego")
-
 ##Check for any "holes" in the design
-#with(resAllError, table(Exp, offset, axis, perspectivePreference))
-#str(resAllError)
+with(resAllError, table(Exp, offset, axis, perspectivePreference))
+str(resAllError)
+
+#To remove mixed responders who have high errors
+#resAllError = subset(resAllError, resAllError$perspectivePreference != "mixed")
 
 #make sure the DVs are of the appropriate type
 resAllError$err = as.factor(as.matrix(resAllError$err))
@@ -464,75 +988,105 @@ resAllError$xFlipDV = as.integer(as.matrix(resAllError$xFlipDV))
 
 ```
 
-## Proportion of errors model (Control trials)
+Step 1: Set up contrast structure
 
 ```{r}
-
-ErrorModel = glmer(err ~ Exp*perspectivePreference*offset*axis 
-                    + (1 | fl),
-                    #+ (0 + offset | fl) #does not converge
-                   # + (0 + axis | fl), #does not converge
-                    #+ (0 + offset:axis | fl), #does not converge
-                    data=resAllError, 
-                    family = "binomial",
-                    REML=FALSE)
-summary(ErrorModel)
+resAllError.cont <- within(resAllError, {
+  
+  # Factor 1: instruction type 
+  axis.latVsag <- ifelse( axis=="lateral", 1/2, 
+                          ifelse( axis=="sagittal", -1/2, NA ) ) 
+  
+  # Factor 2: Perspective preference
+  PP.othVego <- ifelse( perspectivePreference=="other", 1/2,
+                        ifelse( perspectivePreference=="mixed", 0,
+                                ifelse( perspectivePreference=="ego", -1/2, NA )))
+  
+  PP.mixVego <- ifelse( perspectivePreference=="other", 0,
+                        ifelse( perspectivePreference=="mixed", 1/2,
+                                ifelse( perspectivePreference=="ego", -1/2, NA )))    
+  
+  # Factor 3: Orientation of folders
+  orient.otherVego <- ifelse( Exp=="2B", 1/2, 
+                              ifelse( Exp=="2A", -1/2, NA ) ) 
+  
+  # Factor 4: Speaker position (offset)
+  
+  offset.90v0 <- ifelse( offset=="90", 1/2, 
+                           ifelse( offset=="0", -1/2, NA ) )  
+  
+})
 
 ```
 
-## Response Time model (Control trials)
+Step 2: Build the omnibus models with all effects of interest for research questions
 
 ```{r}
 
-RTControl = lmer(log(RTDV) ~ Exp*perspectivePreference*offset*axis 
-                  + (1 | fl) 
-                  + (0 + offset | fl)
-                  + (0 + axis | fl)
-                  + (0 + offset:axis | fl),
-                  data=resAllError,  
-                  REML=FALSE)
-print('RT:'); pander(print_stats(RTControl))
+RTModelControl.omni <- lmer( log(RTDV) ~ (1 | fl) 
+                      + (0 + offset.90v0 | fl) 
+                      + (0 + axis.latVsag | fl) 
+                      + (0 + (axis.latVsag:offset.90v0) | fl) 
+                      + orient.otherVego * offset.90v0 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                      data=resAllError.cont, REML=FALSE )
+summary(RTModelControl.omni) 
+print('RT:'); pander(print_stats(RTModelControl.omni))
 
-#plot(density(resid(RTControl)))
-#qqnorm(resid(RTControl))
-#qqline(resid(RTControl))
+
+#changing the format of the random effect structure for MuMIN package
+RTModelControl.omni <- lmer( log(RTDV) ~ (1 + offset.90v0 + axis.latVsag + (axis.latVsag:offset.90v0) | fl) 
+                             + orient.otherVego * offset.90v0 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                             data=resAllError.cont, REML=FALSE )
+r.squaredGLMM(RTModelControl.omni)[2]
+
+## Distance ##
+
+DistanceModelControl.omni <- lmer( log(totalDistanceDV) ~ (1 | fl) 
+                            + (0 + offset.90v0 | fl) 
+                            + (0 + axis.latVsag | fl) 
+                            + (0 + (axis.latVsag:offset.90v0) | fl)
+                            + orient.otherVego * offset.90v0 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                            data=resAllError.cont, REML=FALSE )
+summary(DistanceModelControl.omni) 
+print('Distance:'); pander(print_stats(DistanceModelControl.omni))
+
+DistanceModelControl.omni <- lmer( log(totalDistanceDV) ~ (1 + offset.90v0 + axis.latVsag + (axis.latVsag:offset.90v0) | fl) 
+                                   + orient.otherVego * offset.90v0 * axis.latVsag * (PP.othVego + PP.mixVego),        
+                                   data=resAllError.cont, REML=FALSE )
+r.squaredGLMM(DistanceModelControl.omni)[2]
+
+## Directional Shifts ##
+
+xFlipModelControl.omni <- lmer( xFlipDV ~ (1 | fl) 
+                         + (0 + offset.90v0 | fl) 
+                         + (0 + axis.latVsag | fl) 
+                         + (0 + (axis.latVsag:offset.90v0) | fl)
+                         + orient.otherVego * offset.90v0 * axis.latVsag * (PP.othVego + PP.mixVego),  
+                         #family = "poisson",
+                         data=resAllError.cont, REML=FALSE )
+summary(xFlipModelControl.omni) 
+print('Directional Shifts:'); pander(print_stats(xFlipModelControl.omni))
+
+
+xFlipModelControl.omni <- lmer( xFlipDV ~ (1 + offset.90v0 + axis.latVsag + (axis.latVsag:offset.90v0) | fl) 
+                                + orient.otherVego * offset.90v0 * axis.latVsag * (PP.othVego + PP.mixVego),  
+                                #family = "poisson",
+                                data=resAllError.cont, REML=FALSE )
+r.squaredGLMM(xFlipModelControl.omni)[2]
+
+# Error models
+
+ErrorModel.omni <- glmer(err ~ (1 | fl)
+                          #+ (0 + offset.90v0 | fl) 
+                          #+ (0 + axis.latVsag | fl) 
+                          #+ (0 + (axis.latVsag:offset.90v0) | fl)
+                          + orient.otherVego * offset.90v0 * axis.latVsag * (PP.othVego + PP.mixVego), 
+                          data=resAllError.cont,
+                          family = "binomial",
+                          # method = "Laplace",
+                          nAGQ = 1,
+                          REML = FALSE)
+summary(ErrorModel.omni)
+r.squaredGLMM(ErrorModel.omni)[2]
 
 ```
-
-## Total Distance models (Control trials)
-
-```{r}
-
-DistanceControl1 = lmer(log(totalDistanceDV) ~  Exp*perspectivePreference*offset*axis 
-                        + (1 | fl) 
-                        + (0 + offset | fl)
-                        + (0 + axis | fl)
-                        + (0 + offset:axis | fl),
-                        data=resAllError,
-                        REML=FALSE)
-print('Total Distance:'); pander(print_stats(DistanceControl1))
-summary(DistanceControl1)
-
-#plot(density(resid(DistanceControl1)))
-#qqnorm(resid(DistanceControl1))
-#qqline(resid(DistanceControl1))
-
-```
-
-## Directional Shifts model (Control trials)
-
-```{r}
-
-xFlipsControl1 = lmer(xFlipDV ~ Exp*perspectivePreference*offset*axis 
-                      + (1 | fl)
-                      + (0 + offset | fl)
-                      + (0 + axis | fl),
-                      #+ (0 + offset:axis | fl), #did not converge
-                      data=resAllError,
-                      #family = "poisson", #models don't converge when using glmer with poisson distribution...
-                      REML=FALSE)
-print('Directional Shifts:'); pander(print_stats(xFlipsControl1))
-summary(xFlipsControl1)
-
-```
-

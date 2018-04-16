@@ -1,6 +1,6 @@
 setwd("~/Documents/[github repositories]/social-configural-dynamics/Code")
 
-# let's laod up the xflip function
+# let's laod up the xflip function!
 source('xflip.R')
 
 sft = 60
@@ -8,7 +8,6 @@ cx = 300 - sft/2 # center x with adjustment for T/L
 cy = 300 - sft/2 # center y
 objPositionX = c(cx-sft/1.5,cx,cx+sft/1.5,cx-sft,cx,cx+sft,cx-sft/1.5,cx,cx+sft/1.5)
 objPositionY = c(cy-sft/1.5,cy-sft,cy-sft/1.5,cy,cy,cy,cy+sft/1.5,cy+sft,cy+sft/1.5)
-
 
 #for EXP 1A
 fls = list.files('~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1a',pattern='txt') # get list of txt files
@@ -21,6 +20,8 @@ rt = "~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1b/" 
 resAll = c() # all results -- let's initialize an empty variable
 resAllError = c()
 resAllPerspectiveDistribution = c()
+
+switch_fold = 0
 
 for (fl in fls) {
   print(fl)
@@ -62,6 +63,10 @@ for (fl in fls) {
         positionPerspectiveInformation = traj[1,14] #14th column contains id of othercentric folder
         #subjectPerspectiveDistribution = subjectPerspectiveDistribution + c(0,1*(positionChose==positionPerspectiveInformation)) #CHANGE THIS
         subjectOthercentricDistribution = subjectOthercentricDistribution + c(0, 1*(positionChose==positionPerspectiveInformation))
+        
+        switch_fold = switch_fold + (length(unique(traj$folder_choice))>=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
+        
+        
         # concatenating ALL trials (make sure to comment out resAll below if you want per trial results)
         resAll = rbind(resAll,data.frame(fl,trial=traj$trial[1],instruction=substr(traj$instruction[1],1,4), 
                                          folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,totalDistanceDV,xFlipDV,AC,
@@ -83,18 +88,25 @@ for (fl in fls) {
         RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]   
         
         if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
+          #positionChose = traj$f1[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
           positionChose = "F1" 
         } else {
+          #positionChose = traj$f2[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
           positionChose = "F2"
         }      
         subjectError = subjectError + c(0,1*(traj$other[1]!=positionChose)) # CHANGED (cor --> other). increment by 1 if it is TRUE that they chose a diff't object from correct             
+        
+        switch_fold = switch_fold + (length(unique(traj$folder_choice))>=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
+        
+        
         resAllError = rbind(resAllError,data.frame(fl,trial=traj$trial[1],
                                                    instruction=substr(traj$instruction[1],1,4), folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,AC,
                                                    totalDistanceDV,xFlipDV, chosen=positionChose,cor=traj$other[1],err=(traj$other[1]!=positionChose)))
       }
       
     }
-    
+    #resAllPerspectiveDistribution = rbind(resAllPerspectiveDistribution,subjectPerspectiveDistribution) # concatenating ALL results with the objResults of the current subject
+    #resAllError = rbind(resAllError,subjectError) # concatenating ALL results with the objResults of the current subject
   }
   
 }
@@ -103,8 +115,15 @@ for (fl in fls) {
 save(file='GDD1A_churnedRawTrajectoryData.Rd',resAll,resAllError)
 save(file='GDD1B_churnedRawTrajectoryData.Rd',resAll,resAllError)
 
-#load('GDD1A_churnedRawTrajectoryData.Rd')
-#load('GDD1B_churnedRawTrajectoryData.Rd')
+
+switch_fold #get number of trials where there is a switch in folder
+percent_switch_fold_Exp1a = switch_fold / (95*40) #95 final participants x 40 trials
+percent_switch_fold_Exp1a
+
+percent_switch_fold_Exp1b = switch_fold / (93*40) #93 final participants x 40 trials
+percent_switch_fold_Exp1b
+
+
 
 
 
