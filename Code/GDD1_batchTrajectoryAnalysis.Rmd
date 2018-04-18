@@ -1,0 +1,294 @@
+
+---
+title: "Social and configural effects on the cognitive dynamics of perspective-taking"
+authors: "Alexia Galati, Rick Dale, & Nick Duran"
+date: "4/15/2017"
+output:
+  html_document: 
+    keep_md: true  
+
+  html_notebook: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+rm(list=ls())
+
+source('xflip.R') #load up file to compute x-flips
+
+```
+
+Setting up x,y coordinates
+
+```{r}
+setwd("~/Documents/[github repositories]/social-configural-dynamics/Code")
+
+sft = 60
+cx = 300 - sft/2 # center x with adjustment for T/L
+cy = 300 - sft/2 # center y
+objPositionX = c(cx-sft/1.5,cx,cx+sft/1.5,cx-sft,cx,cx+sft,cx-sft/1.5,cx,cx+sft/1.5)
+objPositionY = c(cy-sft/1.5,cy-sft,cy-sft/1.5,cy,cy,cy,cy+sft/1.5,cy+sft,cy+sft/1.5)
+
+```
+
+Access data files contained in .txt files for Exp1a.
+
+```{r}
+#for EXP 1A
+fls = list.files('~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1a',pattern='txt') # get list of txt files
+rt = "~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1a/" # root folder location
+
+```
+
+Run loop that computes different DVs for each trial. 
+
+```{r}
+
+resAll = c() # all results -- let's initialize an empty variable
+resAllError = c()
+resAllPerspectiveDistribution = c()
+
+switch_fold = 0
+
+for (fl in fls) {
+  print(fl)
+  testData = read.table(paste(rt,fl,sep=''),sep="\t",header=F) # get the raw data by taking rt+file name / separate with empty string
+  # now let's give it the column names
+  colnames(testData) = c("listn", "turknum", "folder_choice","cond","soundfile","ppos","f1_x", "f1_y", "f2_x", "f2_y", "absdir", "folder_config","instruction","other","trial","ms","t","x","y")  
+  subjectOthercentricDistribution = c(which(fls==fl),0) # AG CHANGED THIS, since we only have a column for othercentric folder here. Keep track of the othercentric object chosen; initialize at 0; incremented for each subject
+  subjectError = c(which(fls==fl),0)
+  
+  # check to make sure it's not a double up data set
+  if (sum(diff(testData$ms)<0)>0) {
+    print(paste('We have a double-up subject file in:',fl))
+  } 
+  else {
+    for (i in 2:41) { #starting at trial #2 since the first recording (5.mp3) is not an experimental trial
+      traj = testData[testData$trial==i,]
+      if (traj$cond[1]=='ambig' & nrow(traj)>0) {
+        rawFlashY = traj$y[1]
+        rawFlashX = traj$x[1]
+        traj$y = -1*(traj$y-600) # mirror image on the y coordinate
+        numSamples = length(traj$x) # final entry in the column (vector)
+        
+        pointAtWhichFolderSelected = which(traj$folder_choice %in% c('F1init','F2init'))[1]  
+        xFlipDV = xflip(traj$x[1:pointAtWhichFolderSelected],0)
+        veloc = sqrt(diff(traj$x[1:pointAtWhichFolderSelected])^2+diff(traj$y[1:pointAtWhichFolderSelected])^2)
+        totalDistanceDV = sum(veloc)
+        accel = diff(smooth(veloc))
+        AC = sum(sign(accel[2:length(accel)]) * sign(accel[1:(length(accel)-1)]) < 0)
+        RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]
+ 
+        if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
+          #positionChose = traj$f1[pointAtWhichFolderSelected] #CHANGE THIS
+          positionChose = 'F1'
+        } else {
+          #positionChose = traj$f2[pointAtWhichFolderSelected] #CHANGES THIS
+          positionChose = 'F2'
+        }
+        #positionPerspectiveInformation = traj[1,11:12] #CHANGE THIS
+        positionPerspectiveInformation = traj[1,14] #14th column contains id of othercentric folder
+        #subjectPerspectiveDistribution = subjectPerspectiveDistribution + c(0,1*(positionChose==positionPerspectiveInformation)) #CHANGE THIS
+        subjectOthercentricDistribution = subjectOthercentricDistribution + c(0, 1*(positionChose==positionPerspectiveInformation))
+        
+        switch_fold = switch_fold + (length(unique(traj$folder_choice))>=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
+        
+        
+        # concatenating ALL trials (make sure to comment out resAll below if you want per trial results)
+        resAll = rbind(resAll,data.frame(fl,trial=traj$trial[1],instruction=substr(traj$instruction[1],1,4), 
+                                         folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,totalDistanceDV,xFlipDV,AC,
+                                         chosen=positionChose,other=traj$other[1]))
+      }
+          
+      if (traj$cond[1]=='shared' & nrow(traj)>0) {
+        rawFlashY = traj$y[1]
+        rawFlashX = traj$x[1]
+        traj$y = -1*(traj$y-600) # mirror image on the y coordinate
+        numSamples = length(traj$x) # final entry in the column (vector)
+        pointAtWhichFolderSelected = which(traj$folder_choice %in% c('F1init','F2init'))[1]  
+        xFlipDV = xflip(traj$x[1:pointAtWhichFolderSelected],0)
+        veloc = sqrt(diff(traj$x[1:pointAtWhichFolderSelected])^2+diff(traj$y[1:pointAtWhichFolderSelected])^2)
+        totalDistanceDV = sum(veloc)
+        
+        accel = diff(smooth(veloc))
+        AC = sum(sign(accel[2:length(accel)]) * sign(accel[1:(length(accel)-1)]) < 0)
+        RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]   
+        
+        if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
+          #positionChose = traj$f1[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
+          positionChose = "F1" 
+        } else {
+          #positionChose = traj$f2[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
+          positionChose = "F2"
+        }      
+        subjectError = subjectError + c(0,1*(traj$other[1]!=positionChose)) # CHANGED (cor --> other). increment by 1 if it is TRUE that they chose a diff't object from correct             
+        
+        switch_fold = switch_fold + (length(unique(traj$folder_choice))>=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
+        
+        
+        resAllError = rbind(resAllError,data.frame(fl,trial=traj$trial[1],
+                                                   instruction=substr(traj$instruction[1],1,4), folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,AC,
+                                                   totalDistanceDV,xFlipDV, chosen=positionChose,cor=traj$other[1],err=(traj$other[1]!=positionChose)))
+      }
+      
+    }
+    #resAllPerspectiveDistribution = rbind(resAllPerspectiveDistribution,subjectPerspectiveDistribution) # concatenating ALL results with the objResults of the current subject
+    #resAllError = rbind(resAllError,subjectError) # concatenating ALL results with the objResults of the current subject
+  }
+  
+}
+
+
+```
+
+Save output file with churned data for Experiment 1a or 1b, as needed.
+
+```{r}
+
+save(file='GDD1B_churnedRawTrajectoryData.Rd',resAll,resAllError)
+
+```
+
+Compute proportion of cases for which the participant picked up a folder, dropped it, and picked up another folder (folder switch). Do so for Exp 1a or 1b. 
+
+```{r}
+switch_fold #get number of trials where there is a switch in folder
+percent_switch_fold_Exp1a = switch_fold / (95*40) #95 final participants x 40 trials
+percent_switch_fold_Exp1a
+
+```
+
+Repeat for Exp1b. 
+Access data files contained in .txt files for Exp1b.
+
+```{r}
+
+#for EXP 1B
+
+fls = list.files('~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1b',pattern='txt') # get list of txt files
+rt = "~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1b/" # root folder location
+
+```
+
+Run the same loop again to compute DVs for each trial of Exp1b data. 
+
+```{r}
+
+resAll = c() # all results -- let's initialize an empty variable
+resAllError = c()
+resAllPerspectiveDistribution = c()
+
+switch_fold = 0
+
+for (fl in fls) {
+  print(fl)
+  testData = read.table(paste(rt,fl,sep=''),sep="\t",header=F) # get the raw data by taking rt+file name / separate with empty string
+  # now let's give it the column names
+  colnames(testData) = c("listn", "turknum", "folder_choice","cond","soundfile","ppos","f1_x", "f1_y", "f2_x", "f2_y", "absdir", "folder_config","instruction","other","trial","ms","t","x","y")  
+  subjectOthercentricDistribution = c(which(fls==fl),0) # AG CHANGED THIS, since we only have a column for othercentric folder here. Keep track of the othercentric object chosen; initialize at 0; incremented for each subject
+  subjectError = c(which(fls==fl),0)
+  
+  # check to make sure it's not a double up data set
+  if (sum(diff(testData$ms)<0)>0) {
+    print(paste('We have a double-up subject file in:',fl))
+  } 
+  else {
+    for (i in 2:41) { #starting at trial #2 since the first recording (5.mp3) is not an experimental trial
+      traj = testData[testData$trial==i,]
+      if (traj$cond[1]=='ambig' & nrow(traj)>0) {
+        rawFlashY = traj$y[1]
+        rawFlashX = traj$x[1]
+        traj$y = -1*(traj$y-600) # mirror image on the y coordinate
+        numSamples = length(traj$x) # final entry in the column (vector)
+        
+        pointAtWhichFolderSelected = which(traj$folder_choice %in% c('F1init','F2init'))[1]  
+        xFlipDV = xflip(traj$x[1:pointAtWhichFolderSelected],0)
+        veloc = sqrt(diff(traj$x[1:pointAtWhichFolderSelected])^2+diff(traj$y[1:pointAtWhichFolderSelected])^2)
+        totalDistanceDV = sum(veloc)
+        accel = diff(smooth(veloc))
+        AC = sum(sign(accel[2:length(accel)]) * sign(accel[1:(length(accel)-1)]) < 0)
+        RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]
+ 
+        if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
+          #positionChose = traj$f1[pointAtWhichFolderSelected] #CHANGE THIS
+          positionChose = 'F1'
+        } else {
+          #positionChose = traj$f2[pointAtWhichFolderSelected] #CHANGES THIS
+          positionChose = 'F2'
+        }
+        #positionPerspectiveInformation = traj[1,11:12] #CHANGE THIS
+        positionPerspectiveInformation = traj[1,14] #14th column contains id of othercentric folder
+        #subjectPerspectiveDistribution = subjectPerspectiveDistribution + c(0,1*(positionChose==positionPerspectiveInformation)) #CHANGE THIS
+        subjectOthercentricDistribution = subjectOthercentricDistribution + c(0, 1*(positionChose==positionPerspectiveInformation))
+        
+        switch_fold = switch_fold + (length(unique(traj$folder_choice))>=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
+        
+        
+        # concatenating ALL trials (make sure to comment out resAll below if you want per trial results)
+        resAll = rbind(resAll,data.frame(fl,trial=traj$trial[1],instruction=substr(traj$instruction[1],1,4), 
+                                         folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,totalDistanceDV,xFlipDV,AC,
+                                         chosen=positionChose,other=traj$other[1]))
+      }
+          
+      if (traj$cond[1]=='shared' & nrow(traj)>0) {
+        rawFlashY = traj$y[1]
+        rawFlashX = traj$x[1]
+        traj$y = -1*(traj$y-600) # mirror image on the y coordinate
+        numSamples = length(traj$x) # final entry in the column (vector)
+        pointAtWhichFolderSelected = which(traj$folder_choice %in% c('F1init','F2init'))[1]  
+        xFlipDV = xflip(traj$x[1:pointAtWhichFolderSelected],0)
+        veloc = sqrt(diff(traj$x[1:pointAtWhichFolderSelected])^2+diff(traj$y[1:pointAtWhichFolderSelected])^2)
+        totalDistanceDV = sum(veloc)
+        
+        accel = diff(smooth(veloc))
+        AC = sum(sign(accel[2:length(accel)]) * sign(accel[1:(length(accel)-1)]) < 0)
+        RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]   
+        
+        if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
+          #positionChose = traj$f1[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
+          positionChose = "F1" 
+        } else {
+          #positionChose = traj$f2[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
+          positionChose = "F2"
+        }      
+        subjectError = subjectError + c(0,1*(traj$other[1]!=positionChose)) # CHANGED (cor --> other). increment by 1 if it is TRUE that they chose a diff't object from correct             
+        
+        switch_fold = switch_fold + (length(unique(traj$folder_choice))>=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
+        
+        
+        resAllError = rbind(resAllError,data.frame(fl,trial=traj$trial[1],
+                                                   instruction=substr(traj$instruction[1],1,4), folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,AC,
+                                                   totalDistanceDV,xFlipDV, chosen=positionChose,cor=traj$other[1],err=(traj$other[1]!=positionChose)))
+      }
+      
+    }
+    #resAllPerspectiveDistribution = rbind(resAllPerspectiveDistribution,subjectPerspectiveDistribution) # concatenating ALL results with the objResults of the current subject
+    #resAllError = rbind(resAllError,subjectError) # concatenating ALL results with the objResults of the current subject
+  }
+  
+}
+
+
+```
+
+
+Save output file with churned data for Exp1b.
+
+```{r}
+
+save(file='GDD1B_churnedRawTrajectoryData.Rd',resAll,resAllError)
+
+```
+
+Compute proportion of cases for which the participant picked up a folder, dropped it, and picked up another folder (folder switch).  
+
+```{r}
+switch_fold #get number of trials where there is a switch in folder
+percent_switch_fold_Exp1b = switch_fold / (93*40) #93 final participants x 40 trials
+percent_switch_fold_Exp1b
+
+```
+
+

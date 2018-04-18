@@ -186,9 +186,9 @@ Let's get some descriptives for ambiguous and control trials
 #reconvert egoChoice to numeric if it was a factor for lmers
 #resAll$egoChoice = as.numeric(as.matrix(resAll$egoChoice))
 pander(aggregate(egoChoice~Exp,data=resAll,FUN=mean))
-pander(aggregate(RTDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
-pander(aggregate(totalDistanceDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
-pander(aggregate(xFlipDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
+#pander(aggregate(RTDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
+#pander(aggregate(totalDistanceDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
+#pander(aggregate(xFlipDV~perspectivePreference+Exp+axis,data=resAll,FUN=mean))
 
 #This is to investigate what mixed responders are doing across trials in the two exps.
 #resAllmixed = resAll[resAll$perspectivePreference == 'mixed',]
@@ -245,16 +245,14 @@ Let's look at other DVs, specifically Response Time
 
 ```{r}
 
-RTByTrial2A = aggregate((1*(resAll2A$RTDV))~resAll2A$trial,FUN=mean)
-RTByTrial2B = aggregate(( 1*(resAll2B$RTDV))~resAll2B$trial,FUN=mean)
+RTByTrial1A = aggregate((1*(resAll1A$RTDV))~resAll1A$trial,FUN=mean)
+RTByTrial1B = aggregate(( 1*(resAll1B$RTDV))~resAll1B$trial,FUN=mean)
 
-plot(RTByTrial2A, main="Mean RT across trials in Exp 1A",
+plot(RTByTrial1A, main="Mean RT across trials in Exp 1A",
      xlab = "Trial number", ylab = "Response Time")
-#abline(lm(resAll2A$RTDV~resAll2A$trial), col="red") # regression line (y~x) 
 
-plot(RTByTrial2B, main="Mean RT across trials in Exp 1B",
+plot(RTByTrial1B, main="Mean RT across trials in Exp 1B",
      xlab = "Trial number", ylab = "Response Time")
-#abline(lm(resAll2A$RTDV~resAll2A$trial), col="red") # regression line (y~x) 
 
 ```
 
@@ -325,6 +323,7 @@ resAll$axis = factor(resAll$axis)
 resAll$offset = factor(resAll$offset)
 resAll$egoChoice = factor(resAll$egoChoice)
 resAll$trial = as.integer(as.matrix(resAll$trial))
+resAll$fl = as.factor(as.matrix(resAll$fl))
 str(resAll)
 
 contrasts(resAll$Exp)
@@ -394,7 +393,7 @@ RTModel.omni <- lmer( log(RTDV) ~ (1 | fl)
                       + orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),        
                       data=resAll.cont, REML=FALSE )
 summary(RTModel.omni)
-print('RT:'); pander(print_stats(RTModel.omni))
+#print('RT:'); pander(print_stats(RTModel.omni))
 
 ## Distance ##
 
@@ -405,7 +404,7 @@ DistanceModel.omni <- lmer( log(totalDistanceDV) ~ (1 | fl)
                       + orient.otherVego * offset.180v90 * axis.latVsag * (PP.othVego + PP.mixVego),        
                       data=resAll.cont, REML=FALSE )
 summary(DistanceModel.omni)
-print('Distance:'); pander(print_stats(DistanceModel.omni))
+#print('Distance:'); pander(print_stats(DistanceModel.omni))
 
 
 ## Directional Shifts ##
@@ -418,7 +417,7 @@ xFlipModel.omni <- lmer( xFlipDV ~ (1 | fl)
                             #family = "poisson",
                             data=resAll.cont, REML=FALSE )
 summary(xFlipModel.omni) 
-print('Directional Shifts:'); pander(print_stats(xFlipModel.omni))
+#print('Directional Shifts:'); pander(print_stats(xFlipModel.omni))
 
 
 # Egocentric Choice models
