@@ -231,11 +231,11 @@ for (fl in fls) {
 ## [1] "498.txt"
 ```
 
-Save output file with churned data for Experiment 1a or 1b, as needed.
+Save output file with churned data for Experiment 1a.
 
 
 ```r
-save(file='GDD1B_churnedRawTrajectoryData.Rd',resAll,resAllError)
+save(file='GDD1A_churnedRawTrajectoryData.Rd',resAll,resAllError)
 ```
 
 Compute proportion of cases for which the participant picked up a folder, dropped it, and picked up another folder (folder switch). Do so for Exp 1a or 1b. 

@@ -23,10 +23,12 @@ The "Code" folder contains:
 <li> code for analyzing the data of the follow-up experiments</li></ul>
 
 
+
 <b>Notes</b>
 
 For viewing the files in a browser, we recommend selecting the .md files, rather than the corresponding .Rmd files. (Analyses should be run using the .Rmd file of the same name in RStudio.) 
 
 
 <b>Acknowledgments</b>
+
 This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement No 705037 to Alexia Galati. We are participating in the Pilot for Open Research Data in Horizon 2020.

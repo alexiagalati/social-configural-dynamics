@@ -130,37 +130,36 @@ cy = 300 - sft/2 # center y
 objPositionX = c(cx-sft/1.5,cx,cx+sft/1.5,cx-sft,cx,cx+sft,cx-sft/1.5,cx,cx+sft/1.5)
 objPositionY = c(cy-sft/1.5,cy-sft,cy-sft/1.5,cy,cy,cy,cy+sft/1.5,cy+sft,cy+sft/1.5)</code></pre>
 <p>Access data files contained in .txt files for Exp1a.</p>
-<pre class="r"><code>#for EXP 1A
-fls = list.files('~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1a',pattern='txt') # get list of txt files
-rt = &quot;~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1a/&quot; # root folder location</code></pre>
+<pre class="r"><code>#for EXP 2
+fls = list.files('~/Documents/[github repositories]/social-configural-dynamics/Data/Exp2',pattern='txt') # get list of txt files
+rt = &quot;~/Documents/[github repositories]/social-configural-dynamics/Data/Exp2/&quot; # root folder location</code></pre>
 <p>Run loop that computes different DVs for each trial.</p>
 <pre class="r"><code>resAll = c() # all results -- let's initialize an empty variable
 resAllError = c()
 resAllPerspectiveDistribution = c()
-
 switch_fold = 0
 
 for (fl in fls) {
   print(fl)
   testData = read.table(paste(rt,fl,sep=''),sep=&quot;\t&quot;,header=F) # get the raw data by taking rt+file name / separate with empty string
   # now let's give it the column names
-  colnames(testData) = c(&quot;listn&quot;, &quot;turknum&quot;, &quot;folder_choice&quot;,&quot;cond&quot;,&quot;soundfile&quot;,&quot;ppos&quot;,&quot;f1_x&quot;, &quot;f1_y&quot;, &quot;f2_x&quot;, &quot;f2_y&quot;, &quot;absdir&quot;, &quot;folder_config&quot;,&quot;instruction&quot;,&quot;other&quot;,&quot;trial&quot;,&quot;ms&quot;,&quot;t&quot;,&quot;x&quot;,&quot;y&quot;)  
-  subjectOthercentricDistribution = c(which(fls==fl),0) # AG CHANGED THIS, since we only have a column for othercentric folder here. Keep track of the othercentric object chosen; initialize at 0; incremented for each subject
+  colnames(testData) = c(&quot;listn&quot;,&quot;folder_choice&quot;,&quot;cond&quot;,&quot;sound&quot;,&quot;ppos&quot;,&quot;f1&quot;,&quot;f2&quot;,&quot;o3&quot;,&quot;config&quot;,&quot;cor&quot;,&quot;ego&quot;,&quot;other&quot;,&quot;trial&quot;,&quot;ms&quot;,&quot;t&quot;,&quot;x&quot;,&quot;y&quot;)  
+  subjectPerspectiveDistribution = c(which(fls==fl),0,0) # keep track of the object chosen by PERSPECTIVE; initialize at 0/0; incremented for each subject
   subjectError = c(which(fls==fl),0)
+  
   
   # check to make sure it's not a double up data set
   if (sum(diff(testData$ms)&lt;0)&gt;0) {
     print(paste('We have a double-up subject file in:',fl))
   } 
   else {
-    for (i in 2:41) { #starting at trial #2 since the first recording (5.mp3) is not an experimental trial
+    for (i in 1:48) {
       traj = testData[testData$trial==i,]
       if (traj$cond[1]=='ambig' &amp; nrow(traj)&gt;0) {
         rawFlashY = traj$y[1]
         rawFlashX = traj$x[1]
         traj$y = -1*(traj$y-600) # mirror image on the y coordinate
         numSamples = length(traj$x) # final entry in the column (vector)
-        
         pointAtWhichFolderSelected = which(traj$folder_choice %in% c('F1init','F2init'))[1]  
         xFlipDV = xflip(traj$x[1:pointAtWhichFolderSelected],0)
         veloc = sqrt(diff(traj$x[1:pointAtWhichFolderSelected])^2+diff(traj$y[1:pointAtWhichFolderSelected])^2)
@@ -168,29 +167,25 @@ for (fl in fls) {
         accel = diff(smooth(veloc))
         AC = sum(sign(accel[2:length(accel)]) * sign(accel[1:(length(accel)-1)]) &lt; 0)
         RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]
- 
         if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
-          #positionChose = traj$f1[pointAtWhichFolderSelected] #CHANGE THIS
-          positionChose = 'F1'
+          positionChose = traj$f1[pointAtWhichFolderSelected]
         } else {
-          #positionChose = traj$f2[pointAtWhichFolderSelected] #CHANGES THIS
-          positionChose = 'F2'
+          positionChose = traj$f2[pointAtWhichFolderSelected]
         }
-        #positionPerspectiveInformation = traj[1,11:12] #CHANGE THIS
-        positionPerspectiveInformation = traj[1,14] #14th column contains id of othercentric folder
-        #subjectPerspectiveDistribution = subjectPerspectiveDistribution + c(0,1*(positionChose==positionPerspectiveInformation)) #CHANGE THIS
-        subjectOthercentricDistribution = subjectOthercentricDistribution + c(0, 1*(positionChose==positionPerspectiveInformation))
+        # compute optimal straight line distance
+        optimalDist = sqrt(sum((rawFlashX-objPositionX[positionChose]-33.5)^2+(rawFlashY-objPositionY[positionChose]-51)^2))
+        positionPerspectiveInformation = traj[1,11:12]
+        subjectPerspectiveDistribution = subjectPerspectiveDistribution + c(0,1*(positionChose==positionPerspectiveInformation))
         
         switch_fold = switch_fold + (length(unique(traj$folder_choice))&gt;=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
         
-        
         # concatenating ALL trials (make sure to comment out resAll below if you want per trial results)
-        resAll = rbind(resAll,data.frame(fl,trial=traj$trial[1],instruction=substr(traj$instruction[1],1,4), 
-                                         folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,totalDistanceDV,xFlipDV,AC,
-                                         chosen=positionChose,other=traj$other[1]))
+        resAll = rbind(resAll,data.frame(fl,trial=traj$trial[1],sound=substr(traj$sound[1],1,4), 
+                                         config=traj$config[1],RTDV,totalDistanceDV,xFlipDV,AC,optimalDist,ppos=traj$ppos[1],
+                                         chosen=positionChose,ego=traj$ego[1],other=traj$other[1],f1=traj[1,6],f2=traj[1,7],o3=traj[1,8]))
       }
           
-      if (traj$cond[1]=='shared' &amp; nrow(traj)&gt;0) {
+      if (traj$cond[1]=='control' &amp; nrow(traj)&gt;0) {
         rawFlashY = traj$y[1]
         rawFlashX = traj$x[1]
         traj$y = -1*(traj$y-600) # mirror image on the y coordinate
@@ -202,350 +197,233 @@ for (fl in fls) {
         
         accel = diff(smooth(veloc))
         AC = sum(sign(accel[2:length(accel)]) * sign(accel[1:(length(accel)-1)]) &lt; 0)
-        RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]   
-        
+        RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]      
         if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
-          #positionChose = traj$f1[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
-          positionChose = &quot;F1&quot; 
+          positionChose = traj$f1[pointAtWhichFolderSelected]
         } else {
-          #positionChose = traj$f2[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
-          positionChose = &quot;F2&quot;
+          positionChose = traj$f2[pointAtWhichFolderSelected]
         }      
-        subjectError = subjectError + c(0,1*(traj$other[1]!=positionChose)) # CHANGED (cor --&gt; other). increment by 1 if it is TRUE that they chose a diff't object from correct             
+        # compute optimal straight line distance
+        optimalDist = sqrt(sum((rawFlashX-objPositionX[positionChose]-33.5)^2+(rawFlashY-objPositionY[positionChose]-51)^2))
         
-        switch_fold = switch_fold + (length(unique(traj$folder_choice))&gt;=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
+        switch_fold = switch_fold + (length(unique(traj$folder_choice))&gt;=4) #Add counts if number of folder_choice labels in a trial is equal to or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
         
-        
+        #subjectError = subjectError + c(0,1*(traj$cor[1]!=positionChose)) # increment by 1 if it is TRUE that they chose a diff't object from correct             
         resAllError = rbind(resAllError,data.frame(fl,trial=traj$trial[1],
-                                                   instruction=substr(traj$instruction[1],1,4), folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,AC,
-                                                   totalDistanceDV,xFlipDV, chosen=positionChose,cor=traj$other[1],err=(traj$other[1]!=positionChose)))
+                                                   sound=substr(traj$sound[1],1,4), config=traj$config[1], RTDV,AC,optimalDist,ppos=traj$ppos[1],
+                                                   totalDistanceDV,xFlipDV, err=(traj$cor[1]!=positionChose),
+                                                   chosen=positionChose, cor=traj$cor[1], ego=traj$ego[1],
+                                                   other=traj$other[1],f1=traj[1,6],f2=traj[1,7],o3=traj[1,8]))      
       }
       
     }
-    #resAllPerspectiveDistribution = rbind(resAllPerspectiveDistribution,subjectPerspectiveDistribution) # concatenating ALL results with the objResults of the current subject
+    resAllPerspectiveDistribution = rbind(resAllPerspectiveDistribution,subjectPerspectiveDistribution) # concatenating ALL results with the objResults of the current subject
     #resAllError = rbind(resAllError,subjectError) # concatenating ALL results with the objResults of the current subject
   }
   
 }</code></pre>
-<pre><code>## [1] &quot;100.txt&quot;
-## [1] &quot;102.txt&quot;
-## [1] &quot;104.txt&quot;
-## [1] &quot;105.txt&quot;
-## [1] &quot;114.txt&quot;
-## [1] &quot;117.txt&quot;
-## [1] &quot;125.txt&quot;
-## [1] &quot;130.txt&quot;
-## [1] &quot;132.txt&quot;
-## [1] &quot;134.txt&quot;
-## [1] &quot;137.txt&quot;
-## [1] &quot;144.txt&quot;
-## [1] &quot;146.txt&quot;
-## [1] &quot;147.txt&quot;
-## [1] &quot;148.txt&quot;
-## [1] &quot;149.txt&quot;
-## [1] &quot;151.txt&quot;
-## [1] &quot;152.txt&quot;
-## [1] &quot;155.txt&quot;
-## [1] &quot;156.txt&quot;
-## [1] &quot;164.txt&quot;
-## [1] &quot;168.txt&quot;
-## [1] &quot;176.txt&quot;
-## [1] &quot;180.txt&quot;
-## [1] &quot;183.txt&quot;
-## [1] &quot;185.txt&quot;
-## [1] &quot;188.txt&quot;
-## [1] &quot;190.txt&quot;
-## [1] &quot;191.txt&quot;
-## [1] &quot;198.txt&quot;
-## [1] &quot;We have a double-up subject file in: 198.txt&quot;
-## [1] &quot;199.txt&quot;
-## [1] &quot;207.txt&quot;
-## [1] &quot;208.txt&quot;
-## [1] &quot;We have a double-up subject file in: 208.txt&quot;
-## [1] &quot;209.txt&quot;
-## [1] &quot;211.txt&quot;
-## [1] &quot;222.txt&quot;
-## [1] &quot;226.txt&quot;
-## [1] &quot;233.txt&quot;
-## [1] &quot;241.txt&quot;
-## [1] &quot;242.txt&quot;
-## [1] &quot;243.txt&quot;
-## [1] &quot;247.txt&quot;
-## [1] &quot;256.txt&quot;
-## [1] &quot;258.txt&quot;
-## [1] &quot;265.txt&quot;
-## [1] &quot;266.txt&quot;
-## [1] &quot;269.txt&quot;
-## [1] &quot;272.txt&quot;
-## [1] &quot;274.txt&quot;
-## [1] &quot;284.txt&quot;
-## [1] &quot;287.txt&quot;
-## [1] &quot;288.txt&quot;
-## [1] &quot;291.txt&quot;
-## [1] &quot;295.txt&quot;
-## [1] &quot;300.txt&quot;
-## [1] &quot;308.txt&quot;
-## [1] &quot;313.txt&quot;
-## [1] &quot;315.txt&quot;
-## [1] &quot;317.txt&quot;
-## [1] &quot;We have a double-up subject file in: 317.txt&quot;
-## [1] &quot;321.txt&quot;
-## [1] &quot;322.txt&quot;
-## [1] &quot;325.txt&quot;
-## [1] &quot;326.txt&quot;
-## [1] &quot;328.txt&quot;
-## [1] &quot;331.txt&quot;
-## [1] &quot;334.txt&quot;
-## [1] &quot;336.txt&quot;
-## [1] &quot;338.txt&quot;
-## [1] &quot;339.txt&quot;
-## [1] &quot;345.txt&quot;
-## [1] &quot;346.txt&quot;
-## [1] &quot;350.txt&quot;
-## [1] &quot;352.txt&quot;
-## [1] &quot;362.txt&quot;
-## [1] &quot;367.txt&quot;
-## [1] &quot;368.txt&quot;
-## [1] &quot;370.txt&quot;
-## [1] &quot;380.txt&quot;
-## [1] &quot;381.txt&quot;
-## [1] &quot;386.txt&quot;
-## [1] &quot;390.txt&quot;
-## [1] &quot;394.txt&quot;
-## [1] &quot;399.txt&quot;
-## [1] &quot;408.txt&quot;
-## [1] &quot;414.txt&quot;
-## [1] &quot;424.txt&quot;
-## [1] &quot;434.txt&quot;
-## [1] &quot;437.txt&quot;
-## [1] &quot;439.txt&quot;
-## [1] &quot;456.txt&quot;
-## [1] &quot;466.txt&quot;
-## [1] &quot;469.txt&quot;
-## [1] &quot;471.txt&quot;
-## [1] &quot;478.txt&quot;
-## [1] &quot;483.txt&quot;
-## [1] &quot;493.txt&quot;
-## [1] &quot;We have a double-up subject file in: 493.txt&quot;
-## [1] &quot;498.txt&quot;</code></pre>
-<p>Save output file with churned data for Experiment 1a.</p>
-<pre class="r"><code>save(file='GDD1A_churnedRawTrajectoryData.Rd',resAll,resAllError)</code></pre>
-<p>Compute proportion of cases for which the participant picked up a folder, dropped it, and picked up another folder (folder switch). Do so for Exp 1a or 1b.</p>
-<pre class="r"><code>switch_fold #get number of trials where there is a switch in folder</code></pre>
-<pre><code>## [1] 97</code></pre>
-<pre class="r"><code>percent_switch_fold_Exp1a = switch_fold / (95*40) #95 final participants x 40 trials
-percent_switch_fold_Exp1a</code></pre>
-<pre><code>## [1] 0.02552632</code></pre>
-<p>Repeat for Exp1b. Access data files contained in .txt files for Exp1b.</p>
-<pre class="r"><code>#for EXP 1B
-
-fls = list.files('~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1b',pattern='txt') # get list of txt files
-rt = &quot;~/Documents/[github repositories]/social-configural-dynamics/Data/Exp1b/&quot; # root folder location</code></pre>
-<p>Run the same loop again to compute DVs for each trial of Exp1b data.</p>
-<pre class="r"><code>resAll = c() # all results -- let's initialize an empty variable
-resAllError = c()
-resAllPerspectiveDistribution = c()
-
-switch_fold = 0
-
-for (fl in fls) {
-  print(fl)
-  testData = read.table(paste(rt,fl,sep=''),sep=&quot;\t&quot;,header=F) # get the raw data by taking rt+file name / separate with empty string
-  # now let's give it the column names
-  colnames(testData) = c(&quot;listn&quot;, &quot;turknum&quot;, &quot;folder_choice&quot;,&quot;cond&quot;,&quot;soundfile&quot;,&quot;ppos&quot;,&quot;f1_x&quot;, &quot;f1_y&quot;, &quot;f2_x&quot;, &quot;f2_y&quot;, &quot;absdir&quot;, &quot;folder_config&quot;,&quot;instruction&quot;,&quot;other&quot;,&quot;trial&quot;,&quot;ms&quot;,&quot;t&quot;,&quot;x&quot;,&quot;y&quot;)  
-  subjectOthercentricDistribution = c(which(fls==fl),0) # AG CHANGED THIS, since we only have a column for othercentric folder here. Keep track of the othercentric object chosen; initialize at 0; incremented for each subject
-  subjectError = c(which(fls==fl),0)
-  
-  # check to make sure it's not a double up data set
-  if (sum(diff(testData$ms)&lt;0)&gt;0) {
-    print(paste('We have a double-up subject file in:',fl))
-  } 
-  else {
-    for (i in 2:41) { #starting at trial #2 since the first recording (5.mp3) is not an experimental trial
-      traj = testData[testData$trial==i,]
-      if (traj$cond[1]=='ambig' &amp; nrow(traj)&gt;0) {
-        rawFlashY = traj$y[1]
-        rawFlashX = traj$x[1]
-        traj$y = -1*(traj$y-600) # mirror image on the y coordinate
-        numSamples = length(traj$x) # final entry in the column (vector)
-        
-        pointAtWhichFolderSelected = which(traj$folder_choice %in% c('F1init','F2init'))[1]  
-        xFlipDV = xflip(traj$x[1:pointAtWhichFolderSelected],0)
-        veloc = sqrt(diff(traj$x[1:pointAtWhichFolderSelected])^2+diff(traj$y[1:pointAtWhichFolderSelected])^2)
-        totalDistanceDV = sum(veloc)
-        accel = diff(smooth(veloc))
-        AC = sum(sign(accel[2:length(accel)]) * sign(accel[1:(length(accel)-1)]) &lt; 0)
-        RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]
- 
-        if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
-          #positionChose = traj$f1[pointAtWhichFolderSelected] #CHANGE THIS
-          positionChose = 'F1'
-        } else {
-          #positionChose = traj$f2[pointAtWhichFolderSelected] #CHANGES THIS
-          positionChose = 'F2'
-        }
-        #positionPerspectiveInformation = traj[1,11:12] #CHANGE THIS
-        positionPerspectiveInformation = traj[1,14] #14th column contains id of othercentric folder
-        #subjectPerspectiveDistribution = subjectPerspectiveDistribution + c(0,1*(positionChose==positionPerspectiveInformation)) #CHANGE THIS
-        subjectOthercentricDistribution = subjectOthercentricDistribution + c(0, 1*(positionChose==positionPerspectiveInformation))
-        
-        switch_fold = switch_fold + (length(unique(traj$folder_choice))&gt;=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
-        
-        
-        # concatenating ALL trials (make sure to comment out resAll below if you want per trial results)
-        resAll = rbind(resAll,data.frame(fl,trial=traj$trial[1],instruction=substr(traj$instruction[1],1,4), 
-                                         folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,totalDistanceDV,xFlipDV,AC,
-                                         chosen=positionChose,other=traj$other[1]))
-      }
-          
-      if (traj$cond[1]=='shared' &amp; nrow(traj)&gt;0) {
-        rawFlashY = traj$y[1]
-        rawFlashX = traj$x[1]
-        traj$y = -1*(traj$y-600) # mirror image on the y coordinate
-        numSamples = length(traj$x) # final entry in the column (vector)
-        pointAtWhichFolderSelected = which(traj$folder_choice %in% c('F1init','F2init'))[1]  
-        xFlipDV = xflip(traj$x[1:pointAtWhichFolderSelected],0)
-        veloc = sqrt(diff(traj$x[1:pointAtWhichFolderSelected])^2+diff(traj$y[1:pointAtWhichFolderSelected])^2)
-        totalDistanceDV = sum(veloc)
-        
-        accel = diff(smooth(veloc))
-        AC = sum(sign(accel[2:length(accel)]) * sign(accel[1:(length(accel)-1)]) &lt; 0)
-        RTDV = traj$ms[pointAtWhichFolderSelected]-traj$ms[1]   
-        
-        if (traj$folder_choice[pointAtWhichFolderSelected]=='F1init') {
-          #positionChose = traj$f1[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
-          positionChose = &quot;F1&quot; 
-        } else {
-          #positionChose = traj$f2[pointAtWhichFolderSelected] #THIS NEEDS TO CHANGE
-          positionChose = &quot;F2&quot;
-        }      
-        subjectError = subjectError + c(0,1*(traj$other[1]!=positionChose)) # CHANGED (cor --&gt; other). increment by 1 if it is TRUE that they chose a diff't object from correct             
-        
-        switch_fold = switch_fold + (length(unique(traj$folder_choice))&gt;=4) #Add counts if number of labels for folder choice column in a trial is equal or larger than 4 (waiting for, F1init/F2init, F1drop/F2drop, F2init)
-        
-        
-        resAllError = rbind(resAllError,data.frame(fl,trial=traj$trial[1],
-                                                   instruction=substr(traj$instruction[1],1,4), folder_config=traj$folder_config[1], ppos=traj$ppos[1], RTDV,AC,
-                                                   totalDistanceDV,xFlipDV, chosen=positionChose,cor=traj$other[1],err=(traj$other[1]!=positionChose)))
-      }
-      
-    }
-    #resAllPerspectiveDistribution = rbind(resAllPerspectiveDistribution,subjectPerspectiveDistribution) # concatenating ALL results with the objResults of the current subject
-    #resAllError = rbind(resAllError,subjectError) # concatenating ALL results with the objResults of the current subject
-  }
-  
-}</code></pre>
-<pre><code>## [1] &quot;504.txt&quot;
-## [1] &quot;510.txt&quot;
-## [1] &quot;511.txt&quot;
-## [1] &quot;518.txt&quot;
-## [1] &quot;525.txt&quot;
-## [1] &quot;526.txt&quot;
-## [1] &quot;527.txt&quot;
-## [1] &quot;530.txt&quot;
-## [1] &quot;531.txt&quot;
-## [1] &quot;534.txt&quot;
-## [1] &quot;536.txt&quot;
-## [1] &quot;537.txt&quot;
-## [1] &quot;540.txt&quot;
-## [1] &quot;542.txt&quot;
-## [1] &quot;545.txt&quot;
-## [1] &quot;549.txt&quot;
-## [1] &quot;550.txt&quot;
-## [1] &quot;554.txt&quot;
-## [1] &quot;562.txt&quot;
-## [1] &quot;We have a double-up subject file in: 562.txt&quot;
-## [1] &quot;563.txt&quot;
-## [1] &quot;570.txt&quot;
-## [1] &quot;576.txt&quot;
-## [1] &quot;581.txt&quot;
-## [1] &quot;584.txt&quot;
-## [1] &quot;591.txt&quot;
-## [1] &quot;593.txt&quot;
-## [1] &quot;595.txt&quot;
-## [1] &quot;596.txt&quot;
-## [1] &quot;598.txt&quot;
-## [1] &quot;We have a double-up subject file in: 598.txt&quot;
-## [1] &quot;607.txt&quot;
-## [1] &quot;617.txt&quot;
-## [1] &quot;618.txt&quot;
-## [1] &quot;620.txt&quot;
-## [1] &quot;631.txt&quot;
-## [1] &quot;638.txt&quot;
-## [1] &quot;640.txt&quot;
-## [1] &quot;643.txt&quot;
-## [1] &quot;645.txt&quot;
-## [1] &quot;653.txt&quot;
-## [1] &quot;656.txt&quot;
-## [1] &quot;659.txt&quot;
-## [1] &quot;660.txt&quot;
-## [1] &quot;675.txt&quot;
-## [1] &quot;677.txt&quot;
-## [1] &quot;681.txt&quot;
-## [1] &quot;683.txt&quot;
-## [1] &quot;686.txt&quot;
-## [1] &quot;688.txt&quot;
-## [1] &quot;690.txt&quot;
-## [1] &quot;691.txt&quot;
-## [1] &quot;693.txt&quot;
-## [1] &quot;699.txt&quot;
-## [1] &quot;701.txt&quot;
-## [1] &quot;706.txt&quot;
-## [1] &quot;715.txt&quot;
-## [1] &quot;719.txt&quot;
-## [1] &quot;727.txt&quot;
-## [1] &quot;728.txt&quot;
-## [1] &quot;729.txt&quot;
-## [1] &quot;732.txt&quot;
-## [1] &quot;745.txt&quot;
-## [1] &quot;We have a double-up subject file in: 745.txt&quot;
-## [1] &quot;746.txt&quot;
-## [1] &quot;751.txt&quot;
-## [1] &quot;752.txt&quot;
-## [1] &quot;763.txt&quot;
-## [1] &quot;772.txt&quot;
-## [1] &quot;780.txt&quot;
-## [1] &quot;788.txt&quot;
-## [1] &quot;789.txt&quot;
-## [1] &quot;793.txt&quot;
-## [1] &quot;795.txt&quot;
-## [1] &quot;799.txt&quot;
-## [1] &quot;802.txt&quot;
-## [1] &quot;806.txt&quot;
-## [1] &quot;811.txt&quot;
-## [1] &quot;813.txt&quot;
-## [1] &quot;815.txt&quot;
-## [1] &quot;816.txt&quot;
-## [1] &quot;We have a double-up subject file in: 816.txt&quot;
-## [1] &quot;818.txt&quot;
-## [1] &quot;819.txt&quot;
-## [1] &quot;820.txt&quot;
-## [1] &quot;831.txt&quot;
-## [1] &quot;834.txt&quot;
-## [1] &quot;838.txt&quot;
-## [1] &quot;847.txt&quot;
-## [1] &quot;851.txt&quot;
-## [1] &quot;854.txt&quot;
-## [1] &quot;856.txt&quot;
-## [1] &quot;860.txt&quot;
-## [1] &quot;861.txt&quot;
-## [1] &quot;866.txt&quot;
-## [1] &quot;872.txt&quot;
-## [1] &quot;874.txt&quot;
-## [1] &quot;879.txt&quot;
-## [1] &quot;886.txt&quot;
-## [1] &quot;892.txt&quot;
-## [1] &quot;893.txt&quot;
-## [1] &quot;894.txt&quot;
-## [1] &quot;897.txt&quot;</code></pre>
-<p>Save output file with churned data for Exp1b.</p>
-<pre class="r"><code>save(file='GDD1B_churnedRawTrajectoryData.Rd',resAll,resAllError)</code></pre>
+<pre><code>## [1] &quot;1004.txt&quot;
+## [1] &quot;1005.txt&quot;
+## [1] &quot;1009.txt&quot;
+## [1] &quot;1010.txt&quot;
+## [1] &quot;1012.txt&quot;
+## [1] &quot;1015.txt&quot;
+## [1] &quot;1018.txt&quot;
+## [1] &quot;1021.txt&quot;
+## [1] &quot;1023.txt&quot;
+## [1] &quot;1035.txt&quot;
+## [1] &quot;1036.txt&quot;
+## [1] &quot;1042.txt&quot;
+## [1] &quot;1043.txt&quot;
+## [1] &quot;1049.txt&quot;
+## [1] &quot;1056.txt&quot;
+## [1] &quot;1067.txt&quot;
+## [1] &quot;1079.txt&quot;
+## [1] &quot;1082.txt&quot;
+## [1] &quot;1091.txt&quot;
+## [1] &quot;We have a double-up subject file in: 1091.txt&quot;
+## [1] &quot;1095.txt&quot;
+## [1] &quot;1099.txt&quot;
+## [1] &quot;1100.txt&quot;
+## [1] &quot;1106.txt&quot;
+## [1] &quot;1109.txt&quot;
+## [1] &quot;1118.txt&quot;
+## [1] &quot;1123.txt&quot;
+## [1] &quot;1128.txt&quot;
+## [1] &quot;1135.txt&quot;
+## [1] &quot;1136.txt&quot;
+## [1] &quot;1138.txt&quot;
+## [1] &quot;1141.txt&quot;
+## [1] &quot;1155.txt&quot;
+## [1] &quot;1162.txt&quot;
+## [1] &quot;1166.txt&quot;
+## [1] &quot;1171.txt&quot;
+## [1] &quot;1178.txt&quot;
+## [1] &quot;1181.txt&quot;
+## [1] &quot;1182.txt&quot;
+## [1] &quot;1183.txt&quot;
+## [1] &quot;1184.txt&quot;
+## [1] &quot;1191.txt&quot;
+## [1] &quot;1192.txt&quot;
+## [1] &quot;1196.txt&quot;
+## [1] &quot;1197.txt&quot;
+## [1] &quot;1213.txt&quot;
+## [1] &quot;1215.txt&quot;
+## [1] &quot;1216.txt&quot;
+## [1] &quot;1228.txt&quot;
+## [1] &quot;1231.txt&quot;
+## [1] &quot;1233.txt&quot;
+## [1] &quot;1235.txt&quot;
+## [1] &quot;1240.txt&quot;
+## [1] &quot;1244.txt&quot;
+## [1] &quot;1250.txt&quot;
+## [1] &quot;1251.txt&quot;
+## [1] &quot;1257.txt&quot;
+## [1] &quot;1264.txt&quot;
+## [1] &quot;1271.txt&quot;
+## [1] &quot;1273.txt&quot;
+## [1] &quot;1277.txt&quot;
+## [1] &quot;1284.txt&quot;
+## [1] &quot;1285.txt&quot;
+## [1] &quot;1294.txt&quot;
+## [1] &quot;1301.txt&quot;
+## [1] &quot;1311.txt&quot;
+## [1] &quot;1313.txt&quot;
+## [1] &quot;1314.txt&quot;
+## [1] &quot;1316.txt&quot;
+## [1] &quot;1323.txt&quot;
+## [1] &quot;1328.txt&quot;
+## [1] &quot;1334.txt&quot;
+## [1] &quot;1337.txt&quot;
+## [1] &quot;We have a double-up subject file in: 1337.txt&quot;
+## [1] &quot;1338.txt&quot;
+## [1] &quot;1339.txt&quot;
+## [1] &quot;1341.txt&quot;
+## [1] &quot;1345.txt&quot;
+## [1] &quot;1352.txt&quot;
+## [1] &quot;1363.txt&quot;
+## [1] &quot;1365.txt&quot;
+## [1] &quot;1374.txt&quot;
+## [1] &quot;1376.txt&quot;
+## [1] &quot;We have a double-up subject file in: 1376.txt&quot;
+## [1] &quot;1404.txt&quot;
+## [1] &quot;1409.txt&quot;
+## [1] &quot;1416.txt&quot;
+## [1] &quot;1419.txt&quot;
+## [1] &quot;1434.txt&quot;
+## [1] &quot;1442.txt&quot;
+## [1] &quot;1446.txt&quot;
+## [1] &quot;1452.txt&quot;
+## [1] &quot;1455.txt&quot;
+## [1] &quot;1460.txt&quot;
+## [1] &quot;1461.txt&quot;
+## [1] &quot;1464.txt&quot;
+## [1] &quot;1472.txt&quot;
+## [1] &quot;1481.txt&quot;
+## [1] &quot;1482.txt&quot;
+## [1] &quot;1489.txt&quot;
+## [1] &quot;1512.txt&quot;
+## [1] &quot;1515.txt&quot;
+## [1] &quot;1520.txt&quot;
+## [1] &quot;1539.txt&quot;
+## [1] &quot;1541.txt&quot;
+## [1] &quot;1549.txt&quot;
+## [1] &quot;1550.txt&quot;
+## [1] &quot;1551.txt&quot;
+## [1] &quot;1553.txt&quot;
+## [1] &quot;1563.txt&quot;
+## [1] &quot;1566.txt&quot;
+## [1] &quot;1583.txt&quot;
+## [1] &quot;1588.txt&quot;
+## [1] &quot;1592.txt&quot;
+## [1] &quot;1594.txt&quot;
+## [1] &quot;1595.txt&quot;
+## [1] &quot;1596.txt&quot;
+## [1] &quot;1601.txt&quot;
+## [1] &quot;1605.txt&quot;
+## [1] &quot;1612.txt&quot;
+## [1] &quot;1624.txt&quot;
+## [1] &quot;1629.txt&quot;
+## [1] &quot;1631.txt&quot;
+## [1] &quot;1642.txt&quot;
+## [1] &quot;1650.txt&quot;
+## [1] &quot;1652.txt&quot;
+## [1] &quot;1654.txt&quot;
+## [1] &quot;1662.txt&quot;
+## [1] &quot;1663.txt&quot;
+## [1] &quot;1676.txt&quot;
+## [1] &quot;1677.txt&quot;
+## [1] &quot;1679.txt&quot;
+## [1] &quot;We have a double-up subject file in: 1679.txt&quot;
+## [1] &quot;1680.txt&quot;
+## [1] &quot;1685.txt&quot;
+## [1] &quot;1689.txt&quot;
+## [1] &quot;1695.txt&quot;
+## [1] &quot;1698.txt&quot;
+## [1] &quot;1704.txt&quot;
+## [1] &quot;1711.txt&quot;
+## [1] &quot;1718.txt&quot;
+## [1] &quot;1722.txt&quot;
+## [1] &quot;We have a double-up subject file in: 1722.txt&quot;
+## [1] &quot;1723.txt&quot;
+## [1] &quot;1736.txt&quot;
+## [1] &quot;1737.txt&quot;
+## [1] &quot;1745.txt&quot;
+## [1] &quot;1754.txt&quot;
+## [1] &quot;1758.txt&quot;
+## [1] &quot;1761.txt&quot;
+## [1] &quot;1762.txt&quot;
+## [1] &quot;1764.txt&quot;
+## [1] &quot;1768.txt&quot;
+## [1] &quot;1769.txt&quot;
+## [1] &quot;1771.txt&quot;
+## [1] &quot;1778.txt&quot;
+## [1] &quot;1797.txt&quot;
+## [1] &quot;1808.txt&quot;
+## [1] &quot;1814.txt&quot;
+## [1] &quot;1815.txt&quot;
+## [1] &quot;1816.txt&quot;
+## [1] &quot;1817.txt&quot;
+## [1] &quot;1821.txt&quot;
+## [1] &quot;1825.txt&quot;
+## [1] &quot;1826.txt&quot;
+## [1] &quot;1828.txt&quot;
+## [1] &quot;1836.txt&quot;
+## [1] &quot;1847.txt&quot;
+## [1] &quot;1859.txt&quot;
+## [1] &quot;1865.txt&quot;
+## [1] &quot;1872.txt&quot;
+## [1] &quot;1876.txt&quot;
+## [1] &quot;1884.txt&quot;
+## [1] &quot;1890.txt&quot;
+## [1] &quot;1897.txt&quot;
+## [1] &quot;1899.txt&quot;
+## [1] &quot;1901.txt&quot;
+## [1] &quot;1903.txt&quot;
+## [1] &quot;1905.txt&quot;
+## [1] &quot;1909.txt&quot;
+## [1] &quot;1915.txt&quot;
+## [1] &quot;1923.txt&quot;
+## [1] &quot;1928.txt&quot;
+## [1] &quot;1938.txt&quot;
+## [1] &quot;1942.txt&quot;
+## [1] &quot;1946.txt&quot;
+## [1] &quot;1950.txt&quot;
+## [1] &quot;1958.txt&quot;
+## [1] &quot;1973.txt&quot;
+## [1] &quot;1975.txt&quot;
+## [1] &quot;1978.txt&quot;
+## [1] &quot;1981.txt&quot;
+## [1] &quot;1986.txt&quot;
+## [1] &quot;1994.txt&quot;</code></pre>
+<p>Save output file with churned data for Experiment 2.</p>
+<pre class="r"><code>save(file='churnedRawTrajectoryData_Exp2.Rd',resAll,resAllError)</code></pre>
 <p>Compute proportion of cases for which the participant picked up a folder, dropped it, and picked up another folder (folder switch).</p>
 <pre class="r"><code>switch_fold #get number of trials where there is a switch in folder</code></pre>
-<pre><code>## [1] 63</code></pre>
-<pre class="r"><code>percent_switch_fold_Exp1b = switch_fold / (93*40) #93 final participants x 40 trials
-percent_switch_fold_Exp1b</code></pre>
-<pre><code>## [1] 0.01693548</code></pre>
+<pre><code>## [1] 232</code></pre>
+<pre class="r"><code>percent_switch_fold = switch_fold / (184*48)
+percent_switch_fold</code></pre>
+<pre><code>## [1] 0.02626812</code></pre>
 
 
 
