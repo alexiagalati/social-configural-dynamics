@@ -14,7 +14,7 @@ Link to OSF repository : https://osf.io/56rqw/
 
 The "Data" folder contains:
 <ul><li>subfolders for each of the 3 experiments in this study (Exp 1A, Exp 1B, Exp 2) with the raw data as .txt files from each participant</li>
-<li>a subfolder with the data of the follow-up experiments (follow-ups to Exp 1 and to Exp 2) in a single .csv file.</li> 
+<li>a subfolder with the data of the follow-up experiments (follow-ups to Exp 1 and to Exp 2) in a single .csv file.</li></ul> 
 
 The "Code" folder contains: 
 <ul><li> batchTrajectoryAnalysis.R files: code for processing the raw data from mouse-tracking to generate the dependent measures</li>
