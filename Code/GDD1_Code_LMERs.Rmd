@@ -965,6 +965,7 @@ r.squaredGLMM(ChoiceModel_NoMixed.omni)[2]
 Preliminaries
 
 ```{r}
+
 resAllError = as.data.frame(as.matrix(resAllError))
 #Defining as factors in order to set reference categories next
 resAllError$Exp = as.factor(as.matrix(resAllError$Exp))
@@ -990,6 +991,7 @@ resAllError$xFlipDV = as.integer(as.matrix(resAllError$xFlipDV))
 Step 1: Set up contrast structure
 
 ```{r}
+
 resAllError.cont <- within(resAllError, {
   
   # Factor 1: instruction type 
@@ -1064,7 +1066,7 @@ xFlipModelControl.omni <- lmer( xFlipDV ~ (1 | fl)
                          #family = "poisson",
                          data=resAllError.cont, REML=FALSE )
 summary(xFlipModelControl.omni) 
-print('Directional Shifts:'); pander(print_stats(xFlipModelControl.omni))
+#print('Directional Shifts:'); pander(print_stats(xFlipModelControl.omni))
 
 
 xFlipModelControl.omni <- lmer( xFlipDV ~ (1 + offset.90v0 + axis.latVsag + (axis.latVsag:offset.90v0) | fl) 
