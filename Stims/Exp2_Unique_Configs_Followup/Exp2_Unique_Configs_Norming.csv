@@ -1,0 +1,28 @@
+﻿Unique_Config_ID,Speakerpos,Config_alignment,Obj_positions,Freq
+1,0,both ,2_4_6,4
+2,0,both ,2_6_4,4
+3,90,ego,2_4_6,2
+4,90,ego,2_6_4,3
+5,90,ego-reversed,6_8_4,1
+6,90,neither,1_9_3,1
+7,90,neither,1_9_7,1
+8,90,neither,3_7_1,2
+9,90,other,2_4_8,2
+10,90,other,4_8_2,3
+11,90,other-reversed,6_8_2,1
+12,180,neither,1_9_3,3
+13,180,neither,2_8_4,1
+14,180,neither,3_7_9,4
+15,270,ego,2_4_6,3
+16,270,ego,2_6_4,2
+17,270,ego-reversed,4_8_6,1
+18,270,neither,1_9_3,2
+19,270,neither,3_7_1,1
+20,270,neither,3_7_9,1
+21,270,other,2_6_8,2
+22,270,other,6_8_2,3
+23,270,other-reversed,4_8_2,1
+,,,,48
+,,,,
+,Note 1: Speakerpos 90 is with Partner on the right (E) and 270 is with Partner on the left (W),,,
+,"Note 2: Object_arrangement lists the locations of the 3 objects as folder1_folder2_CD; numbers are based on a 3 x 3 grid superimposed on the circle, and their numbering is aligned with the observer's perspective at 0, with numbers 1, 4, 7 referring to the leftmost locations of the top to bottom rows",,,

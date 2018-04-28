@@ -22,6 +22,10 @@ The "Code" folder contains:
 <li> Code_LMERs.R files: code for obtaining the descriptives and running the linear mixed effects models reported in the paper</li> 
 <li> code for analyzing the data of the follow-up experiments</li></ul>
 
+The "Stims" folder contains: 
+<ul><li>folders with the experimental lists used in Exp 1A/B and Exp2</li>
+<li>folders containing screenshots of the unique configurations from Exps 1A/B and 2, used in the follow-up experiments</li></ul>
+
 
 
 <b>Notes</b>

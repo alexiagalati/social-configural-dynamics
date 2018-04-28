@@ -1,0 +1,26 @@
+﻿Unique_Config_ID,Speakerpos,Obj_arrangement,Obj_positions,Obj_alignment,Exp_origin,Freq_in_a_given_list
+1,0,Diagonal1,1_9,both,Exp1ab,4
+2,0,Diagonal2,3_7,both,Exp1ab,4
+3,0,Horizontal,4_6,both,Exp1ab,2
+4,0,Vertical,2_8,both,Exp1ab,2
+5,90,Diagonal1,1_9,ego,Exp1a,4
+6,90,Diagonal2,3_7,ego,Exp1a,4
+7,180,Diagonal1,1_9,ego,Exp1a,4
+8,180,Diagonal2,3_7,ego,Exp1a,4
+9,180,Horizontal,4_6,ego,Exp1a,2
+10,180,Vertical,2_8,ego,Exp1a,2
+11,270,Diagonal1,1_9,ego,Exp1a,4
+12,270,Diagonal2,3_7,ego,Exp1a,4
+13,90,Diagonal1,1_9,other,Exp1b,4
+14,90,Diagonal2,3_7,other,Exp1b,4
+15,180,Diagonal1,1_9,other,Exp1b,4
+16,180,Diagonal2,3_7,other,Exp1b,4
+17,180,Horizontal,4_6,other,Exp1b,2
+18,180,Vertical,2_8,other,Exp1b,2
+19,270,Diagonal1,1_9,other,Exp1b,4
+20,270,Diagonal2,3_7,other,Exp1b,4
+,,,,,,
+,,,,,,
+,Note 1: Speakerpos 90 is with Partner on the right (E) and 270 is with Partner on the left (W),,,,,
+,"Note 2: Diagonal1 is with left folder (from ego perspective) on the top and right folder on the bottom (i.e., positions 1_9; see below); Diagonal2 is with right folder (from ego perspective) on the top and left folder on the bottom (i.e., positions 3_7)",,,,,
+,"Note 3: Object_arrangement lists the locations of the 3 objects as folder1_folder2_CD; numbers are based on a 3 x 3 grid superimposed on the circle, and their numbering is aligned with the observer's perspective at 0, with numbers 1, 4, 7 referring to the leftmost locations of the top to bottom rows",,,,,
