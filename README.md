@@ -20,7 +20,7 @@ The "Code" folder contains:
 <ul><li> batchTrajectoryAnalysis.R files: code for processing the raw data from mouse-tracking to generate the dependent measures</li>
 <li>churnedRawTrajectoryData.R files: output files generated from batchTrajectoryAnalysis.R files, which are loaded to run linear mixed effects modes</li>
 <li> Code_LMERs.R files: code for obtaining the descriptives and running the linear mixed effects models reported in the paper</li> 
-<li> code for analyzing the data of the follow-up experiments</li></ul>
+<li> Followups.R files: code for analyzing the data of the follow-up experiments</li></ul>
 
 The "Stims" folder contains: 
 <ul><li>folders with the experimental lists used in Exp 1A/B and Exp2</li>
