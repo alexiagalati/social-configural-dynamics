@@ -315,9 +315,9 @@ We start with some pre-processing of the variables, setting the reference catego
 ```{r}
 
 resAll = as.data.frame(as.matrix(resAll))
+
 #Defining as factors in order to set reference categories next
-
-
+resAll$Exp = as.factor(as.matrix(resAll$Exp))
 resAll$perspectivePreference = factor(resAll$perspectivePreference)
 resAll$axis = factor(resAll$axis)
 resAll$offset = factor(resAll$offset)
@@ -325,6 +325,7 @@ resAll$egoChoice = factor(resAll$egoChoice)
 resAll$trial = as.integer(as.matrix(resAll$trial))
 resAll$fl = as.factor(as.matrix(resAll$fl))
 str(resAll)
+
 
 contrasts(resAll$Exp)
 contrasts(resAll$perspectivePreference)
@@ -367,8 +368,8 @@ resAll.cont <- within(resAll, {
                                 ifelse( perspectivePreference=="ego", -1/2, NA )))    
   
   # Factor 3: Orientation of folders
-  orient.otherVego <- ifelse( Exp=="2B", 1/2, 
-                               ifelse( Exp=="2A", -1/2, NA ) ) 
+  orient.otherVego <- ifelse( Exp=="1B", 1/2, 
+                               ifelse( Exp=="1A", -1/2, NA ) ) 
   
   # Factor 4: Speaker position (offset)
   
@@ -839,8 +840,8 @@ resAll_NoMixed <- within(resAll_NoMixed, {
                         ifelse( perspectivePreference=="ego", -1/2, NA ))
   
   # Factor 3: Orientation of folders
-  orient.otherVego <- ifelse( Exp=="2B", 1/2, 
-                              ifelse( Exp=="2A", -1/2, NA ) ) 
+  orient.otherVego <- ifelse( Exp=="1B", 1/2, 
+                              ifelse( Exp=="1A", -1/2, NA ) ) 
   
   # Factor 4: Speaker position (offset)
   
@@ -1008,8 +1009,8 @@ resAllError.cont <- within(resAllError, {
                                 ifelse( perspectivePreference=="ego", -1/2, NA )))    
   
   # Factor 3: Orientation of folders
-  orient.otherVego <- ifelse( Exp=="2B", 1/2, 
-                              ifelse( Exp=="2A", -1/2, NA ) ) 
+  orient.otherVego <- ifelse( Exp=="1B", 1/2, 
+                              ifelse( Exp=="1A", -1/2, NA ) ) 
   
   # Factor 4: Speaker position (offset)
   
